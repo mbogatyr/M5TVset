@@ -112,7 +112,13 @@ parts (eyes, smiles, the channel logo) live in `art/svg.py`.
    way they do with octree;
 3. writes `art/frames/`, `src/generated/Frames.cpp` (the PNGs as arrays in
    flash plus the frame durations) and `art/preview.html` (a preview with a
-   button simulator).
+   button simulator), plus its Russian copy `art/preview.ru.html`.
+
+There is one page template, `art/preview.template.html`, in English. The
+Russian page is made from it by the replacement table in `art/preview_ru.py`,
+so the CSS and JS exist only once. Every English text in the table must occur
+in the template, otherwise `build.py` fails: when you change a text in the
+template, update its entry in `preview_ru.py` too.
 
 Never edit `src/generated/Frames.cpp` by hand — change the scenes and rerun
 the script. Run Chrome without `--user-data-dir`: on macOS it then takes the

@@ -99,7 +99,8 @@ the macOS one). The script:
 2. reduces it to a 256-color palette, which makes the PNG about 4 times
    smaller;
 3. writes the PNGs to `art/frames/`, generates `src/generated/Frames.cpp` with
-   the PNGs and frame durations, and builds `art/preview.html`.
+   the PNGs and frame durations, and builds `art/preview.html` and its Russian
+   version `art/preview.ru.html`.
 
 Open `art/preview.html` in a browser to see every channel in motion and try
 the buttons on a simulated TV. The generated `Frames.cpp` is committed, so
@@ -139,6 +140,7 @@ the board:
 | `test/` | Unity unit tests for everything in `lib/` |
 | `art/scenes/` | One scene per channel, drawn as SVG |
 | `art/build.py` | Renders the scenes into PNG frames, `Frames.cpp` and the preview |
+| `art/preview.template.html` | The preview page; `art/preview_ru.py` makes its Russian version |
 | `art/frames/` | The rendered frames |
 | `tools/merged_image.py` | PlatformIO `merged` target: a single image for M5Burner |
 | `tools/channel_sheet.py` | Builds the README image |

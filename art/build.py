@@ -1,6 +1,6 @@
 """Builds the TV frames from the scenes in art/scenes.
 
-    python3 art/build.py          # PNG, src/generated/Frames.cpp, art/preview.html
+    python3 art/build.py          # PNG, src/generated/Frames.cpp, art/preview.html and .ru.html
     python3 art/build.py --sheet  # plus storyboard sheets in art/.cache/ for review
 
 Each frame is an SVG. Headless Chrome captures it at 4x and Pillow scales it down
@@ -34,6 +34,7 @@ FRAMES = ART / "frames"
 FRAMES_CPP = ROOT / "src" / "generated" / "Frames.cpp"
 PREVIEW_TEMPLATE = ART / "preview.template.html"
 PREVIEW = ART / "preview.html"
+PREVIEW_RU = ART / "preview.ru.html"
 
 HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
 html,body{{margin:0;padding:0;overflow:hidden;background:#000}}svg{{display:block}}
@@ -185,6 +186,10 @@ def write_preview(channels):
     page = PREVIEW_TEMPLATE.read_text(encoding="utf-8")
     page = page.replace("/*CHANNELS*/[]", json.dumps(data, ensure_ascii=False))
     PREVIEW.write_text(page, encoding="utf-8")
+
+    from preview_ru import translate
+
+    PREVIEW_RU.write_text(translate(page), encoding="utf-8")
 
 
 def write_sheets(channels):
