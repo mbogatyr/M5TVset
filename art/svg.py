@@ -170,7 +170,34 @@ _BUG_ICONS = {
         poly([(10.5, 8), (14.5, 4.5), (14.5, 11.5)], c),
         circle(5, 7.3, 0.9, WHITE),
     ),
+    "atom": lambda c: g(
+        ellipse(8, 8, 6.4, 2.4, "none", stroke=c, stroke_width=1.2),
+        ellipse(8, 8, 6.4, 2.4, "none", stroke=c, stroke_width=1.2,
+                transform="rotate(60 8 8)"),
+        ellipse(8, 8, 6.4, 2.4, "none", stroke=c, stroke_width=1.2,
+                transform="rotate(-60 8 8)"),
+        circle(8, 8, 1.8, c),
+    ),
+    "brick": lambda c: g(
+        rect(2, 6, 12, 7, c, rx=1),
+        rect(4, 3.6, 3, 3, c, rx=0.6),
+        rect(9, 3.6, 3, 3, c, rx=0.6),
+    ),
+    "ufo": lambda c: g(
+        path("M4.5,8 A3.5,3.5 0 0 1 11.5,8 Z", fill=c),
+        ellipse(8, 9, 7, 2.4, c),
+        circle(4, 12.6, 1, c), circle(8, 13.2, 1, c), circle(12, 12.6, 1, c),
+    ),
+    "pyramid": lambda c: g(
+        poly([(1.5, 13), (8, 3), (14.5, 13)], c),
+        path("M8,3 L9.5,13", stroke=WHITE, stroke_width=0.9),
+    ),
 }
+
+
+def limb(x1, y1, x2, y2, color, width=4):
+    """Рука, лапа или нога: толстая линия с обводкой."""
+    return g(line(x1, y1, x2, y2, INK, width + 2.4), line(x1, y1, x2, y2, color, width))
 
 
 def bug(icon, color):
