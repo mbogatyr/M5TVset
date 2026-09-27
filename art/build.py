@@ -1,0 +1,223 @@
+"""Собирает кадры телевизора из сцен в art/scenes.
+
+    python3 art/build.py          # PNG, src/generated/Frames.cpp, art/preview.html
+    python3 art/build.py --sheet  # плюс раскадровки в art/.cache/ для просмотра
+
+Каждый кадр — SVG. Headless Chrome снимает его в 4x, Pillow уменьшает до
+240x135: так сглаживание получается ровнее, чем у растеризатора в 1x.
+Снимки кэшируются по хэшу SVG, перерисовываются только изменённые кадры.
+"""
+
+import base64
+import concurrent.futures
+import hashlib
+import io
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+from PIL import Image
+
+ART = Path(__file__).resolve().parent
+ROOT = ART.parent
+sys.path.insert(0, str(ART))
+
+from svg import H, W  # noqa: E402
+
+CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+SCALE = 4
+CACHE = ART / ".cache"
+FRAMES = ART / "frames"
+FRAMES_CPP = ROOT / "src" / "generated" / "Frames.cpp"
+PREVIEW_TEMPLATE = ART / "preview.template.html"
+PREVIEW = ART / "preview.html"
+
+HTML = """<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{{margin:0;padding:0;overflow:hidden;background:#000}}svg{{display:block}}
+</style></head><body>{svg}</body></html>"""
+
+
+def render(svg):
+    """Снимок SVG в размере SCALE*240 x SCALE*135, с кэшем по содержимому."""
+    key = hashlib.sha1(svg.encode()).hexdigest()[:16]
+    shot = CACHE / f"{key}.png"
+    if shot.exists():
+        return shot
+
+    with tempfile.TemporaryDirectory() as tmp:
+        page = Path(tmp) / "frame.html"
+        page.write_text(HTML.format(svg=svg), encoding="utf-8")
+        out = Path(tmp) / "shot.png"
+        subprocess.run(
+            [
+                # --user-data-dir не задавать: с ним Chrome на macOS
+                # снимает кадр, но не завершается.
+                CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                f"--force-device-scale-factor={SCALE}",
+                f"--window-size={W},{H}",
+                f"--screenshot={out}", page.as_uri(),
+            ],
+            check=True, capture_output=True, timeout=60)
+        with Image.open(out) as im:
+            if im.size != (W * SCALE, H * SCALE):
+                raise RuntimeError(f"Chrome вернул {im.size}, ожидался {W * SCALE}x{H * SCALE}")
+        shutil.move(out, shot)
+    return shot
+
+
+def downscale(shot):
+    with Image.open(shot) as im:
+        return im.convert("RGB").resize((W, H), Image.LANCZOS)
+
+
+def png_bytes(image):
+    # Палитра в 256 цветов: плоская графика почти не меняется, а PNG
+    # становится вчетверо меньше и быстрее раскодируется на плате.
+    image = image.quantize(colors=256, method=Image.Quantize.MEDIANCUT,
+                           dither=Image.Dither.NONE)
+    buf = io.BytesIO()
+    image.save(buf, format="PNG", optimize=True)
+    return buf.getvalue()
+
+
+def build_channels():
+    """Возвращает [(канал, [(png, мс), ...]), ...] и пишет PNG в art/frames."""
+    from scenes import CHANNELS
+
+    CACHE.mkdir(exist_ok=True)
+    jobs = []
+    for channel in CHANNELS:
+        for svg, ms in channel.frames():
+            jobs.append((channel, svg, ms))
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+        shots = list(pool.map(lambda job: render(job[1]), jobs))
+
+    if FRAMES.exists():
+        shutil.rmtree(FRAMES)
+
+    result = []
+    for number, channel in enumerate(CHANNELS, start=1):
+        folder = FRAMES / f"{number:02d}_{channel.SLUG}"
+        folder.mkdir(parents=True)
+        frames = []
+        for (job_channel, _, ms), shot in zip(jobs, shots):
+            if job_channel is not channel:
+                continue
+            data = png_bytes(downscale(shot))
+            (folder / f"{len(frames):02d}.png").write_bytes(data)
+            frames.append((data, ms))
+        result.append((channel, frames))
+    return result
+
+
+def c_array(data):
+    rows = []
+    for i in range(0, len(data), 20):
+        rows.append("    " + ", ".join(f"0x{b:02x}" for b in data[i:i + 20]) + ",")
+    return "\n".join(rows)
+
+
+def write_frames_cpp(channels):
+    ident = lambda channel: "".join(p.capitalize() for p in channel.SLUG.split("_"))
+    out = [
+        "// Сгенерировано art/build.py из сцен в art/scenes. Руками не править:",
+        "// поменять сцену и перезапустить python3 art/build.py.",
+        "",
+        '#include "Frames.h"',
+        "",
+        "namespace {",
+        "",
+    ]
+    for channel, frames in channels:
+        name = ident(channel)
+        out.append(f"// {channel.TITLE}")
+        for index, (data, _) in enumerate(frames):
+            out.append(f"const uint8_t k{name}Png{index}[] = {{")
+            out.append(c_array(data))
+            out.append("};")
+        images = ", ".join(
+            f"{{k{name}Png{i}, sizeof(k{name}Png{i})}}" for i in range(len(frames)))
+        durations = ", ".join(str(ms) for _, ms in frames)
+        out.append(f"const FrameImage k{name}Images[] = {{{images}}};")
+        out.append(f"const uint16_t k{name}Ms[] = {{{durations}}};")
+        out.append("")
+
+    names = [ident(channel) for channel, _ in channels]
+    out.append("const FrameImage *const kImages[] = {")
+    out.extend(f"    k{name}Images," for name in names)
+    out.append("};")
+    out.append("")
+    out.append("} // namespace")
+    out.append("")
+    out.append("const ChannelInfo kChannels[] = {")
+    for (_, frames), name in zip(channels, names):
+        out.append(f"    {{k{name}Ms, {len(frames)}}},")
+    out.append("};")
+    out.append("")
+    out.append(f"const uint8_t kChannelCount = {len(channels)};")
+    out.append("")
+    out.append("const FrameImage &frameImage(uint8_t channel, uint8_t frame) {")
+    out.append("    return kImages[channel][frame];")
+    out.append("}")
+    out.append("")
+
+    FRAMES_CPP.parent.mkdir(parents=True, exist_ok=True)
+    FRAMES_CPP.write_text("\n".join(out), encoding="utf-8")
+
+
+def write_preview(channels):
+    if not PREVIEW_TEMPLATE.exists():
+        return
+    data = [
+        {
+            "title": channel.TITLE,
+            "frames": [
+                {"src": "data:image/png;base64," + base64.b64encode(png).decode(), "ms": ms}
+                for png, ms in frames
+            ],
+        }
+        for channel, frames in channels
+    ]
+    page = PREVIEW_TEMPLATE.read_text(encoding="utf-8")
+    page = page.replace("/*CHANNELS*/[]", json.dumps(data, ensure_ascii=False))
+    PREVIEW.write_text(page, encoding="utf-8")
+
+
+def write_sheets(channels):
+    """Раскадровки в 2x для просмотра глазами."""
+    zoom, gap = 2, 6
+    for number, (channel, frames) in enumerate(channels, start=1):
+        cols = 3
+        rows = (len(frames) + cols - 1) // cols
+        sheet = Image.new(
+            "RGB", (cols * (W * zoom + gap) + gap, rows * (H * zoom + gap) + gap), "#444")
+        for i, (png, _) in enumerate(frames):
+            with Image.open(io.BytesIO(png)) as im:
+                big = im.resize((W * zoom, H * zoom), Image.NEAREST)
+            x = gap + (i % cols) * (W * zoom + gap)
+            y = gap + (i // cols) * (H * zoom + gap)
+            sheet.paste(big, (x, y))
+        sheet.save(CACHE / f"sheet_{number:02d}_{channel.SLUG}.png")
+
+
+def main():
+    channels = build_channels()
+    write_frames_cpp(channels)
+    write_preview(channels)
+    if "--sheet" in sys.argv:
+        write_sheets(channels)
+
+    total = 0
+    for channel, frames in channels:
+        size = sum(len(png) for png, _ in frames)
+        total += size
+        print(f"{channel.TITLE:<14} кадров: {len(frames):2d}  {size / 1024:6.1f} КБ")
+    print(f"{'Всего':<14} кадров: {sum(len(f) for _, f in channels):2d}  {total / 1024:6.1f} КБ")
+
+
+if __name__ == "__main__":
+    main()

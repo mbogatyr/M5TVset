@@ -1,0 +1,682 @@
+<title>Телевизор M5TVset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --ground: #e6ebf0;
+    --surface: #f7f9fb;
+    --ink: #1c222a;
+    --muted: #59636f;
+    --line: #cbd4dd;
+    --brick: #c8322b;
+    --brick-dark: #9e231e;
+    --brick-light: #e2554d;
+    --yellow: #f2b705;
+    --bezel: #15181c;
+    --chip-on: #1c222a;
+    --chip-on-ink: #ffffff;
+
+    --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+    --body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #14171b;
+      --surface: #1d2127;
+      --ink: #e7ebf0;
+      --muted: #98a2ae;
+      --line: #2e353e;
+      --chip-on: #f2b705;
+      --chip-on-ink: #14171b;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #14171b;
+    --surface: #1d2127;
+    --ink: #e7ebf0;
+    --muted: #98a2ae;
+    --line: #2e353e;
+    --chip-on: #f2b705;
+    --chip-on-ink: #14171b;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font: 16px/1.55 var(--body);
+    padding-inline: 16px;
+  }
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-block: 40px 72px;
+    display: grid;
+    gap: 48px;
+  }
+
+  /* --- вступление --- */
+  .intro { display: grid; gap: 12px; max-width: 68ch; }
+  .eyebrow {
+    margin: 0;
+    font: 500 12px/1.4 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    margin: 0;
+    font: 800 clamp(30px, 5vw, 48px)/1.05 var(--display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--muted); font-size: 17px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  /* --- телевизор --- */
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+  .tv-wrap { display: grid; justify-items: center; gap: 0; }
+  .tv {
+    --stud: 22px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 20px 22px 22px;
+    background: linear-gradient(180deg, var(--brick-light), var(--brick) 18%, var(--brick) 82%, var(--brick-dark));
+    border-radius: 10px;
+    box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.18), 0 10px 24px rgba(20, 20, 30, 0.22);
+    max-width: 100%;
+  }
+  .studs {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: calc(var(--stud) * -0.45);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .studs span {
+    width: var(--stud);
+    height: calc(var(--stud) * 0.5);
+    border-radius: 5px 5px 2px 2px;
+    background: linear-gradient(90deg, var(--brick-dark), var(--brick-light) 40%, var(--brick) 70%, var(--brick-dark));
+  }
+  .screen-bezel {
+    background: var(--bezel);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 2px #000, inset 0 2px 8px rgba(255, 255, 255, 0.06);
+    max-width: 100%;
+  }
+  #tv-canvas {
+    display: block;
+    width: 480px;
+    max-width: 100%;
+    aspect-ratio: 240 / 135;
+    height: auto;
+    image-rendering: pixelated;
+    border-radius: 2px;
+    background: #000;
+  }
+  .tv.real #tv-canvas { width: 25.2mm; image-rendering: auto; }
+  .panel { display: grid; justify-items: center; gap: 14px; }
+  .key {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--bezel);
+    font: 700 11px/1 var(--mono);
+    letter-spacing: 0.04em;
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+  .key-1 {
+    width: 58px; height: 58px;
+    background: radial-gradient(circle at 35% 30%, #ffe27a, var(--yellow) 60%, #c79300);
+    box-shadow: 0 4px 0 #8d6900, 0 6px 10px rgba(0, 0, 0, 0.25);
+  }
+  .key-2 {
+    width: 40px; height: 40px;
+    background: radial-gradient(circle at 35% 30%, #f1f3f5, #c9ced4 60%, #9aa1a9);
+    box-shadow: 0 3px 0 #6e757d, 0 5px 8px rgba(0, 0, 0, 0.25);
+  }
+  .key:active, .key.pressed { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4); }
+  .key:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+  .key-label {
+    font: 600 11px/1.2 var(--body);
+    color: #ffffff;
+    text-align: center;
+    opacity: 0.92;
+  }
+  .feet { display: flex; gap: 180px; }
+  .feet span {
+    width: 44px; height: 14px;
+    background: var(--brick-dark);
+    border-radius: 0 0 4px 4px;
+  }
+
+  .side { display: grid; gap: 22px; align-content: start; }
+  .now { display: grid; gap: 2px; }
+  .now-label {
+    font: 500 12px/1.4 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .now-title { font: 800 26px/1.2 var(--display); }
+  .now-frame { font: 500 14px/1.4 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .chip {
+    appearance: none;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px 6px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 500 14px/1.2 var(--body);
+  }
+  .chip b {
+    display: grid;
+    place-items: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--line);
+    font: 700 12px/1 var(--mono);
+  }
+  .chip[aria-current="true"] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+  .chip[aria-current="true"] b { background: var(--yellow); color: var(--bezel); }
+  .chip:focus-visible, .seg button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+  .seg { display: inline-flex; justify-self: start; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 8px 14px;
+    font: 500 14px/1.2 var(--body);
+  }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); }
+
+  .rules { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); font-size: 15px; }
+  .rules b { color: var(--ink); font-weight: 600; }
+  kbd {
+    font: 500 12px/1 var(--mono);
+    padding: 3px 6px;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .feedback {
+    margin: 0;
+    padding: 14px 16px;
+    border-left: 4px solid var(--yellow);
+    background: var(--surface);
+    border-radius: 0 8px 8px 0;
+    font-size: 15px;
+  }
+  .feedback q { font-family: var(--mono); font-size: 14px; }
+
+  /* --- раскадровки --- */
+  .boards { display: grid; gap: 56px; }
+  .boards-head { display: grid; gap: 6px; max-width: 68ch; }
+  h2 { margin: 0; font: 800 24px/1.2 var(--display); text-wrap: balance; }
+  .boards-head p { margin: 0; color: var(--muted); }
+  .board { display: grid; gap: 16px; scroll-margin-top: 24px; }
+  .board-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .board-num {
+    font: 800 15px/1 var(--display);
+    display: grid;
+    place-items: center;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: var(--brick);
+    color: #ffffff;
+    align-self: center;
+  }
+  .board-head h3 { margin: 0; font: 800 20px/1.2 var(--display); }
+  .board-meta { font: 500 13px/1.4 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .board-body {
+    display: grid;
+    grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .loop { margin: 0; display: grid; gap: 6px; }
+  .loop canvas {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 240 / 135;
+    height: auto;
+    image-rendering: pixelated;
+    border-radius: 6px;
+    background: #000;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .loop figcaption, .strip figcaption { font: 500 12px/1.4 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .strip figure { margin: 0; display: grid; gap: 4px; }
+  .strip img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 240 / 135;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px var(--line);
+    transition: box-shadow 120ms ease;
+  }
+  .strip li.playing img { box-shadow: 0 0 0 2px var(--yellow); }
+  .strip figcaption b { color: var(--ink); font-weight: 700; }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: minmax(0, 1fr); }
+    .board-body { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .page { padding-block: 24px 48px; gap: 36px; }
+    .tv { flex-direction: column; padding: 18px 14px 16px; gap: 14px; }
+    .panel { grid-auto-flow: column; align-items: center; gap: 18px; }
+    .feet { gap: 120px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .key, .strip img { transition: none; }
+  }
+</style>
+
+<main class="page">
+  <header class="intro">
+    <p class="eyebrow">Превью кадров · M5StickS3 · экран 240×135</p>
+    <h1>Телевизор M5TVset</h1>
+    <p class="lede">Семь каналов для игрушечного телевизора в домике из кубиков, все надписи на экране по-английски. Кадры и их длительности здесь те же, что попадут в прошивку: это одни и те же PNG. <strong>Ничего ещё не прошито</strong>: сначала посмотрите картинки и скажите, что переделать.</p>
+  </header>
+
+  <section class="stage" aria-label="Симулятор телевизора">
+    <div class="tv-wrap">
+      <div class="tv" id="tv">
+        <div class="studs" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="screen-bezel">
+          <canvas id="tv-canvas" width="240" height="135" role="img" aria-label="Экран телевизора"></canvas>
+        </div>
+        <div class="panel">
+          <button class="key key-1" id="key1" type="button" aria-label="KEY1: следующий канал">KEY1</button>
+          <span class="key-label">канал</span>
+          <button class="key key-2" id="key2" type="button" aria-label="KEY2: включить или выключить">KEY2</button>
+          <span class="key-label">вкл/выкл</span>
+        </div>
+      </div>
+      <div class="feet" aria-hidden="true"><span></span><span></span></div>
+    </div>
+
+    <div class="side">
+      <div class="now" aria-live="polite">
+        <span class="now-label">Сейчас в эфире</span>
+        <span class="now-title" id="now-title">1 · News</span>
+        <span class="now-frame" id="now-frame">кадр 1 из 8</span>
+      </div>
+
+      <ul class="chips" id="chips" aria-label="Каналы"></ul>
+
+      <div class="seg" role="group" aria-label="Размер экрана">
+        <button type="button" id="size-big" aria-pressed="true">Крупно, ×2</button>
+        <button type="button" id="size-real" aria-pressed="false">Как на плате, 25 мм</button>
+      </div>
+
+      <ul class="rules">
+        <li><b>KEY1</b> (<kbd>→</kbd> или <kbd>Enter</kbd>): помехи 0,4 с, следующий канал, номер в углу горит 2 с. После седьмого снова первый.</li>
+        <li><b>KEY2</b> (<kbd>пробел</kbd>): экран гаснет, как у старого кинескопа. Любая кнопка включает на том же канале.</li>
+        <li><b>3 минуты без нажатий</b>: телевизор гаснет сам.</li>
+        <li>Кружки с каналами нужны только для просмотра, на плате каналы листаются по кругу.</li>
+      </ul>
+
+      <p class="feedback">Чтобы попросить правку, напишите в чат номер канала и кадра из раскадровки ниже, например <q>Sports, кадр 4: вратарь пусть прыгает выше</q>.</p>
+    </div>
+  </section>
+
+  <section class="boards" aria-labelledby="boards-title">
+    <div class="boards-head">
+      <h2 id="boards-title">Раскадровка</h2>
+      <p>Каждый канал крутится по кругу. Слева цикл в движении, справа все кадры с номерами и временем показа. Кадр, который сейчас идёт в цикле, подсвечен.</p>
+    </div>
+    <div id="boards"></div>
+  </section>
+</main>
+
+<script>
+  const CHANNELS = /*CHANNELS*/[];
+
+  // Те же тайминги, что в прошивке (lib/Tv).
+  const STATIC_MS = 400;
+  const OSD_MS = 2000;
+  const POWER_MS = 400;
+  const IDLE_MS = 180000;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  for (const ch of CHANNELS) {
+    ch.cycle = ch.frames.reduce((sum, f) => sum + f.ms, 0);
+    for (const f of ch.frames) {
+      f.img = new Image();
+      f.img.src = f.src;
+    }
+  }
+
+  function frameAt(ch, elapsed) {
+    let t = elapsed % ch.cycle;
+    for (let i = 0; i < ch.frames.length; i++) {
+      if (t < ch.frames[i].ms) return i;
+      t -= ch.frames[i].ms;
+    }
+    return 0;
+  }
+
+  const plural = (n, one, few, many) => {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  };
+  const seconds = ms => (ms / 1000).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+
+  // --- телевизор ---------------------------------------------------------
+
+  const tv = {
+    mode: 'powerOn', // powerOn | picture | static | powerOff | off
+    channel: 0,
+    since: performance.now(),
+    channelSince: 0,
+    osdUntil: 0,
+    lastActivity: performance.now(),
+  };
+
+  function activity(now) { tv.lastActivity = now; }
+
+  function powerOn(now) {
+    tv.mode = 'powerOn';
+    tv.since = now;
+  }
+
+  function pressKey1() {
+    const now = performance.now();
+    activity(now);
+    if (tv.mode === 'off' || tv.mode === 'powerOff') return powerOn(now);
+    if (tv.mode === 'powerOn') return;
+    switchTo((tv.channel + 1) % CHANNELS.length, now);
+  }
+
+  function switchTo(channel, now) {
+    tv.channel = channel;
+    tv.mode = 'static';
+    tv.since = now;
+    tv.osdUntil = now + STATIC_MS + OSD_MS;
+  }
+
+  function pressKey2() {
+    const now = performance.now();
+    activity(now);
+    if (tv.mode === 'off' || tv.mode === 'powerOff') return powerOn(now);
+    tv.mode = 'powerOff';
+    tv.since = now;
+  }
+
+  function step(now) {
+    const t = now - tv.since;
+    if (tv.mode === 'powerOn' && t >= POWER_MS) {
+      tv.mode = 'picture';
+      tv.channelSince = tv.since + POWER_MS;
+      tv.osdUntil = tv.channelSince + OSD_MS;
+    } else if (tv.mode === 'static' && t >= STATIC_MS) {
+      tv.mode = 'picture';
+      tv.channelSince = tv.since + STATIC_MS;
+    } else if (tv.mode === 'powerOff' && t >= POWER_MS) {
+      tv.mode = 'off';
+    }
+    if ((tv.mode === 'picture' || tv.mode === 'static') && now - tv.lastActivity >= IDLE_MS) {
+      tv.mode = 'powerOff';
+      tv.since = now;
+    }
+  }
+
+  const canvas = document.getElementById('tv-canvas');
+  const ctx = canvas.getContext('2d');
+  const noise = ctx.createImageData(240, 135);
+
+  function drawNoise() {
+    const d = noise.data;
+    for (let y = 0; y < 135; y += 2) {
+      for (let x = 0; x < 240; x += 2) {
+        const v = Math.random() * 255 | 0;
+        for (let dy = 0; dy < 2 && y + dy < 135; dy++) {
+          for (let dx = 0; dx < 2; dx++) {
+            const i = ((y + dy) * 240 + x + dx) * 4;
+            d[i] = d[i + 1] = d[i + 2] = v;
+            d[i + 3] = 255;
+          }
+        }
+      }
+    }
+    ctx.putImageData(noise, 0, 0);
+  }
+
+  function currentImage(now) {
+    const ch = CHANNELS[tv.channel];
+    return ch.frames[frameAt(ch, Math.max(0, now - tv.channelSince))].img;
+  }
+
+  function drawOsd(now) {
+    if (now >= tv.osdUntil) return;
+    const label = String(tv.channel + 1);
+    ctx.font = '700 22px "JetBrains Mono", monospace';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#000000';
+    ctx.fillText(label, 10, 8);
+    ctx.fillStyle = '#39ff5a';
+    ctx.fillText(label, 8, 6);
+  }
+
+  // p: 0 — полная картинка, 1 — погасшая точка
+  function drawCollapse(now, p) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, 240, 135);
+    if (p < 0.6) {
+      const h = Math.max(2, 135 * (1 - p / 0.6));
+      ctx.drawImage(currentImage(now), 0, (135 - h) / 2, 240, h);
+      ctx.fillStyle = `rgba(255,255,255,${(p / 0.6) * 0.7})`;
+      ctx.fillRect(0, (135 - h) / 2, 240, h);
+    } else if (p < 1) {
+      const w = Math.max(3, 240 * (1 - (p - 0.6) / 0.4));
+      ctx.fillStyle = '#fff';
+      ctx.fillRect((240 - w) / 2, 66, w, 3);
+    }
+  }
+
+  function drawTv(now) {
+    const t = now - tv.since;
+    if (tv.mode === 'picture') {
+      ctx.drawImage(currentImage(now), 0, 0);
+      drawOsd(now);
+    } else if (tv.mode === 'static') {
+      drawNoise();
+      drawOsd(now);
+    } else if (tv.mode === 'powerOff') {
+      drawCollapse(now, Math.min(1, t / POWER_MS));
+    } else if (tv.mode === 'powerOn') {
+      tv.channelSince = tv.since + POWER_MS;
+      drawCollapse(tv.channelSince, 1 - Math.min(1, t / POWER_MS));
+    } else {
+      ctx.fillStyle = '#050607';
+      ctx.fillRect(0, 0, 240, 135);
+      const g = ctx.createLinearGradient(0, 0, 240, 135);
+      g.addColorStop(0, 'rgba(255,255,255,0.07)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 240, 135);
+    }
+  }
+
+  // --- подписи и переключатели -------------------------------------------
+
+  const nowTitle = document.getElementById('now-title');
+  const nowFrame = document.getElementById('now-frame');
+  const chips = document.getElementById('chips');
+  let lastStatus = '';
+
+  CHANNELS.forEach((ch, i) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.id = `chip-${i}`;
+    b.innerHTML = `<b>${i + 1}</b>${ch.title}`;
+    b.addEventListener('click', () => {
+      const now = performance.now();
+      activity(now);
+      if (tv.mode === 'off' || tv.mode === 'powerOff') {
+        tv.channel = i;
+        powerOn(now);
+      } else {
+        switchTo(i, now);
+      }
+    });
+    li.appendChild(b);
+    chips.appendChild(li);
+  });
+
+  function updateStatus(now) {
+    const ch = CHANNELS[tv.channel];
+    let frameText;
+    if (tv.mode === 'off') frameText = 'телевизор выключен';
+    else if (tv.mode === 'static') frameText = 'помехи, переключаемся';
+    else if (tv.mode === 'powerOn') frameText = 'включается';
+    else if (tv.mode === 'powerOff') frameText = 'выключается';
+    else frameText = `кадр ${frameAt(ch, now - tv.channelSince) + 1} из ${ch.frames.length}`;
+    const status = `${tv.channel}|${frameText}`;
+    if (status === lastStatus) return;
+    lastStatus = status;
+    nowTitle.textContent = `${tv.channel + 1} · ${ch.title}`;
+    nowFrame.textContent = frameText;
+    chips.querySelectorAll('.chip').forEach((b, i) => {
+      b.setAttribute('aria-current', String(i === tv.channel && tv.mode !== 'off'));
+    });
+  }
+
+  const tvEl = document.getElementById('tv');
+  const sizeBig = document.getElementById('size-big');
+  const sizeReal = document.getElementById('size-real');
+  function setRealSize(real) {
+    tvEl.classList.toggle('real', real);
+    sizeBig.setAttribute('aria-pressed', String(!real));
+    sizeReal.setAttribute('aria-pressed', String(real));
+    try { localStorage.setItem('tv-size', real ? 'real' : 'big'); } catch (e) {}
+  }
+  sizeBig.addEventListener('click', () => setRealSize(false));
+  sizeReal.addEventListener('click', () => setRealSize(true));
+  try { if (localStorage.getItem('tv-size') === 'real') setRealSize(true); } catch (e) {}
+
+  const key1 = document.getElementById('key1');
+  const key2 = document.getElementById('key2');
+  key1.addEventListener('click', pressKey1);
+  key2.addEventListener('click', pressKey2);
+
+  function flash(el) {
+    el.classList.add('pressed');
+    setTimeout(() => el.classList.remove('pressed'), 120);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('button')) {
+      if (e.key === 'Enter' || e.key === ' ') return; // кнопка нажмётся сама
+    }
+    if (e.key === 'ArrowRight' || e.key === 'Enter') {
+      e.preventDefault(); flash(key1); pressKey1();
+    } else if (e.key === ' ') {
+      e.preventDefault(); flash(key2); pressKey2();
+    }
+  });
+
+  // --- раскадровки -------------------------------------------------------
+
+  const boardsEl = document.getElementById('boards');
+  const loops = [];
+  const pageStart = performance.now();
+
+  CHANNELS.forEach((ch, c) => {
+    const n = ch.frames.length;
+    const art = document.createElement('article');
+    art.className = 'board';
+    art.id = `channel-${c + 1}`;
+    art.innerHTML = `
+      <div class="board-head">
+        <span class="board-num">${c + 1}</span>
+        <h3>${ch.title}</h3>
+        <span class="board-meta">${n} ${plural(n, 'кадр', 'кадра', 'кадров')} · цикл ${seconds(ch.cycle)} с</span>
+      </div>
+      <div class="board-body">
+        <figure class="loop">
+          <canvas width="240" height="135" role="img" aria-label="${ch.title}: цикл кадров"></canvas>
+          <figcaption>цикл в движении, ×2</figcaption>
+        </figure>
+        <ol class="strip">
+          ${ch.frames.map((f, i) => `
+            <li>
+              <figure>
+                <img src="${f.src}" width="240" height="135" alt="${ch.title}, кадр ${i + 1}">
+                <figcaption><b>кадр ${i + 1}</b> · ${f.ms} мс</figcaption>
+              </figure>
+            </li>`).join('')}
+        </ol>
+      </div>`;
+    boardsEl.appendChild(art);
+    const cv = art.querySelector('canvas');
+    loops.push({ ch, ctx: cv.getContext('2d'), items: art.querySelectorAll('.strip li'), last: -1 });
+  });
+
+  function drawLoops(now) {
+    for (const loop of loops) {
+      const i = reduceMotion ? 0 : frameAt(loop.ch, now - pageStart);
+      if (i === loop.last) continue;
+      const img = loop.ch.frames[i].img;
+      if (!img.complete) continue;
+      loop.ctx.drawImage(img, 0, 0);
+      loop.items.forEach((li, k) => li.classList.toggle('playing', k === i && !reduceMotion));
+      loop.last = i;
+    }
+  }
+
+  function tick(now) {
+    step(now);
+    drawTv(now);
+    updateStatus(now);
+    drawLoops(now);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+</script>
