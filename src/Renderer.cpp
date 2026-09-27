@@ -4,9 +4,10 @@
 
 namespace {
 
-// Альбомная ориентация. Какая из двух (1 или 3) ставит KEY1 справа от
-// экрана, как кнопки на корпусе телевизора, проверяется на плате.
+// Альбомные ориентации: в kRotation KEY1 справа от экрана, как кнопки на
+// корпусе телевизора (проверено на плате), в kFlippedRotation — слева.
 constexpr uint8_t kRotation = 1;
+constexpr uint8_t kFlippedRotation = 3;
 
 constexpr int kWidth = 240;
 constexpr int kHeight = 135;
@@ -39,6 +40,15 @@ void Renderer::begin() {
 }
 
 void Renderer::invalidate() { hasPrevious_ = false; }
+
+void Renderer::setFlipped(bool flipped) {
+    if (flipped == flipped_) {
+        return;
+    }
+    flipped_ = flipped;
+    M5.Display.setRotation(flipped ? kFlippedRotation : kRotation);
+    invalidate();
+}
 
 void Renderer::draw(const Screen &screen) {
     const bool unchanged = hasPrevious_ && screen.mode != Mode::Static &&

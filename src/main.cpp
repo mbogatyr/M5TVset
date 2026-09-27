@@ -1,6 +1,7 @@
 #include <M5Unified.h>
 
 #include "Frames.h"
+#include "Orientation.h"
 #include "Renderer.h"
 #include "Tv.h"
 
@@ -10,6 +11,7 @@ constexpr uint8_t kBrightness = 120;
 
 Renderer renderer;
 Tv tv(kChannels, kChannelCount);
+Orientation orientation;
 
 bool displayAwake = true;
 
@@ -23,6 +25,8 @@ void setDisplayAwake(bool awake) {
         M5.Display.wakeup();
         M5.Display.setBrightness(kBrightness);
         renderer.invalidate();
+        // Пока экран спал, телевизор могли перевернуть.
+        orientation.reset();
     } else {
         // Подсветка — главный потребитель, гасим её отдельно от
         // усыпления самой панели.
@@ -56,6 +60,10 @@ void loop() {
     setDisplayAwake(screen.mode != Screen::Mode::Off);
 
     if (displayAwake) {
+        float ax, ay, az;
+        if (M5.Imu.getAccel(&ax, &ay, &az)) {
+            renderer.setFlipped(orientation.update(now, ax, ay, az));
+        }
         renderer.draw(screen);
     }
 

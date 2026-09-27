@@ -23,6 +23,10 @@ class Renderer {
     // иначе решит, что перерисовывать нечего.
     void invalidate();
 
+    // Переворачивает картинку на 180°, когда телевизор поставили на другую
+    // длинную грань. Спрайты 240x135 подходят к обеим ориентациям.
+    void setFlipped(bool flipped);
+
   private:
     void loadPicture(uint8_t channel, uint8_t frame);
     void paintStatic();
@@ -31,6 +35,8 @@ class Renderer {
 
     M5Canvas canvas_{&M5.Display};
     M5Canvas picture_; // раскодированный текущий кадр канала
+
+    bool flipped_ = false;
 
     bool hasPrevious_ = false;
     Screen previous_{};
