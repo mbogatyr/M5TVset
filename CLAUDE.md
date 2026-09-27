@@ -152,6 +152,21 @@ with esptool `merge_bin`. It takes the offsets and flash parameters from
 PlatformIO's own upload configuration, so the image matches what `upload`
 writes.
 
+The v1.0.0 image was checked on the board: written alone at 0x0 with
+`esptool.py write_flash 0x0 <image>`, the way M5Burner does it, and the TV
+works. Its layout: the bootloader at 0x0 (header `e9 03 02 3f`), the
+partition table at 0x8000 (`aa 50`), `firmware.bin` byte for byte at 0x10000.
+
+A `verify_flash` of the whole image against the board always fails, and that
+is expected. The image has the NVS partition (0x9000–0xE000) blank, as
+`0xFF`, and the Arduino core's `nvs_flash_init()` writes a page header at
+0x9000 on the first boot. Verify the other ranges instead: 0x0–0x9000, and
+0xE000 to the end.
+
+For the upload, copy the image and the cover into `dist/` (ignored by git):
+`dist/M5TVset-v<version>.bin` and `dist/M5TVset-cover.png`. A file picker
+can't easily reach `.pio/`, a hidden folder.
+
 The upload form at burner.m5stack.com/developer/firmware/upload asks for:
 - name, category and supported devices (StickS3);
 - description and version description, both Markdown;
