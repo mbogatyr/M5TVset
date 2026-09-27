@@ -1,17 +1,17 @@
-"""Помощники для рисования кадров в SVG.
+"""Helpers for drawing frames in SVG.
 
-Холст 240x135 — экран StickS3 в альбомной ориентации. Экран физически
-около 25x14 мм, поэтому рисуем крупно: жирные фигуры, обводка не тоньше
-1.5 px, мелких деталей минимум.
+The canvas is 240x135, the StickS3 screen in landscape orientation. The screen is
+physically about 25x14 mm, so everything is drawn large: bold shapes, strokes no
+thinner than 1.5 px, as few small details as possible.
 """
 
 W, H = 240, 135
 
-INK = "#2b2238"  # обводка персонажей
+INK = "#2b2238"  # character outline
 WHITE = "#ffffff"
 
-HEAVY_FONT = "Arial Black, Arial, sans-serif"  # крупные надписи
-TEXT_FONT = "Verdana, Arial, sans-serif"  # мелкий текст
+HEAVY_FONT = "Arial Black, Arial, sans-serif"  # large lettering
+TEXT_FONT = "Verdana, Arial, sans-serif"  # small text
 
 
 def _attrs(kw):
@@ -68,12 +68,12 @@ def text(x, y, s, size, fill, font=HEAVY_FONT, anchor="start", weight="bold", **
 
 
 def outlined(width=2):
-    """Атрибуты мультяшной обводки для фигур персонажей."""
+    """Cartoon outline attributes for character shapes."""
     return {"stroke": INK, "stroke_width": width, "stroke_linejoin": "round"}
 
 
 def linear(id_, *stops, vertical=True):
-    """Линейный градиент; stops — пары (смещение 0..1, цвет)."""
+    """Linear gradient; stops are (offset 0..1, color) pairs."""
     x2, y2 = ("0", "1") if vertical else ("1", "0")
     inner = "".join(
         tag("stop", offset=offset, stop_color=color) for offset, color in stops)
@@ -98,11 +98,11 @@ def translate(x, y, *children, rotate=0, scale=None):
     return g(*children, transform=transform)
 
 
-# --- детали персонажей -----------------------------------------------------
+# --- character details -----------------------------------------------------
 
 
 def eye(cx, cy, r=3.2, look=(0, 0), blink=False):
-    """Мультяшный глаз: белок, зрачок и блик. blink — закрытый глаз-дуга."""
+    """Cartoon eye: white, pupil and highlight. blink draws a closed eye as an arc."""
     if blink:
         return path(
             f"M{cx - r},{cy} Q{cx},{cy + r * 0.9} {cx + r},{cy}",
@@ -116,7 +116,7 @@ def eye(cx, cy, r=3.2, look=(0, 0), blink=False):
 
 
 def smile(cx, cy, w, open_=False, fill="#c2334d"):
-    """Улыбка. open_ — открытый рот (говорит или радуется)."""
+    """Smile. open_ draws an open mouth (talking or happy)."""
     if open_:
         return path(
             f"M{cx - w},{cy} Q{cx},{cy + w * 1.4} {cx + w},{cy} Z",
@@ -131,11 +131,11 @@ def cheek(cx, cy, r=2.4):
 
 
 def wrap(value, period):
-    """Координата, которая проходит период и возвращается без скачка."""
+    """Coordinate that runs through a period and wraps around without a jump."""
     return value % period
 
 
-# --- логотип канала в правом верхнем углу ----------------------------------
+# --- channel logo in the top-right corner ----------------------------------
 
 _BUG_ICONS = {
     "globe": lambda c: g(
@@ -196,12 +196,12 @@ _BUG_ICONS = {
 
 
 def limb(x1, y1, x2, y2, color, width=4):
-    """Рука, лапа или нога: толстая линия с обводкой."""
+    """Arm, paw or leg: a thick line with an outline."""
     return g(line(x1, y1, x2, y2, INK, width + 2.4), line(x1, y1, x2, y2, color, width))
 
 
 def bug(icon, color):
-    """Полупрозрачный значок канала, как у настоящего телеканала."""
+    """Semi-transparent channel logo, like on a real TV channel."""
     return translate(
         W - 22, 5,
         rect(0, 0, 17, 16, WHITE, rx=4, opacity="0.82"),

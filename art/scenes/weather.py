@@ -1,4 +1,4 @@
-"""Погода: тучка с дождиком уходит, выходит солнце, появляется радуга."""
+"""Weather: a rain cloud moves away, the sun comes out, a rainbow appears."""
 
 from svg import (
     HEAVY_FONT, INK, W, WHITE, bug, circle, cheek, ellipse, eye, frame, g, line,
@@ -7,7 +7,7 @@ from svg import (
 SLUG = "weather"
 TITLE = "Weather"
 
-# небо, x тучи, дождь (0 — нет, 1/2 — фаза капель), радуга (0..1), температура
+# sky, cloud x, rain (0 none, 1/2 drop phase), rainbow (0..1), temperature
 STATES = [
     ("#9fb3c8", 60, 0, 0.0, "15°C"),
     ("#98adc4", 60, 1, 0.0, "15°C"),
@@ -77,13 +77,13 @@ def landscape():
     return g(
         path("M0,100 Q60,86 130,98 T240,94 L240,135 L0,135 Z", fill="#6cc24a"),
         path("M0,118 Q80,108 150,118 T240,116 L240,135 L0,135 Z", fill="#58ad3c"),
-        # домик
+        # house
         rect(178, 82, 32, 24, "#ffe3a3", **outlined(1.6)),
         poly([(173, 84), (194, 64), (215, 84)], "#e8483b", **outlined(1.6)),
         rect(189, 93, 9, 13, "#8a5a3c", **outlined(1.2)),
         rect(181, 87, 6, 6, "#9fdcff", **outlined(1.1)),
         rect(201, 87, 6, 6, "#9fdcff", **outlined(1.1)),
-        # дерево
+        # tree
         rect(120, 88, 5, 16, "#8a5a3c", **outlined(1.2)),
         circle(122, 82, 11, "#3f9a3a", **outlined(1.5)),
         circle(118, 79, 4, "#58b84a"),

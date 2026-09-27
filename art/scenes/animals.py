@@ -1,4 +1,4 @@
-"""Про животных: саванна, жираф жуёт листья, слонёнок машет ушами, летит птичка."""
+"""Animals: savanna, a giraffe chews leaves, a baby elephant flaps its ears, a bird flies by."""
 
 from svg import (
     INK, W, WHITE, bug, circle, cheek, ellipse, eye, frame, g, line, linear,
@@ -89,7 +89,7 @@ def giraffe(index):
 
 
 def tube(d, color, width):
-    """Толстая линия с обводкой: хобот, щупальце."""
+    """Thick outlined line: a trunk or a tentacle."""
     return g(
         path(d, stroke=INK, stroke_width=width + 2.6, stroke_linecap="round"),
         path(d, stroke=color, stroke_width=width, stroke_linecap="round"),

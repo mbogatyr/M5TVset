@@ -1,4 +1,4 @@
-"""НЛО: летающая тарелка прилетает на ферму, катает коровку в луче и улетает."""
+"""UFO: a flying saucer comes to a farm, gives a cow a ride in its beam and flies away."""
 
 import random
 
@@ -12,7 +12,7 @@ TITLE = "UFO"
 GROUND = 114
 COW_X = 112
 
-# тарелка (x, y, наклон), луч, подъём коровы, её наклон, лицо коровы, пришелец машет
+# saucer (x, y, tilt), beam, cow lift, cow tilt, cow face, alien waving
 STATES = [
     ((34, 34, 10), False, 0, 0, "graze", False),
     ((112, 38, 0), False, 0, 0, "oh", False),
@@ -102,7 +102,7 @@ def saucer(x, y, angle, index, waving):
     return translate(
         x, y,
         path("M-13,-2 A13,12 0 0 1 13,-2 Z", fill="#bdf2ff", opacity="0.55"),
-        # пришелец под куполом
+        # alien under the dome
         arm,
         line_antenna(),
         ellipse(0, -8, 5.5, 6, "#7bd66f", **outlined(1.2)),

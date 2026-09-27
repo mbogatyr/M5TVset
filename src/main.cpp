@@ -25,11 +25,11 @@ void setDisplayAwake(bool awake) {
         M5.Display.wakeup();
         M5.Display.setBrightness(kBrightness);
         renderer.invalidate();
-        // Пока экран спал, телевизор могли перевернуть.
+        // The TV may have been turned over while the screen was asleep.
         orientation.reset();
     } else {
-        // Подсветка — главный потребитель, гасим её отдельно от
-        // усыпления самой панели.
+        // The backlight draws the most power, so switch it off separately
+        // from putting the panel itself to sleep.
         M5.Display.setBrightness(0);
         M5.Display.sleep();
     }
@@ -51,9 +51,9 @@ void loop() {
 
     const uint32_t now = millis();
 
-    // Выключение питания здесь не обрабатывается: боковая кнопка
-    // делает это сама двойным щелчком через PMIC. KEY2 только гасит
-    // экран, как кнопка на игрушечном телевизоре.
+    // Power-off is not handled here: the side button does that by itself
+    // on a double click, through the PMIC. KEY2 only turns the screen
+    // off and on, like the button on a toy TV.
     tv.update(now, M5.BtnA.wasPressed(), M5.BtnB.wasPressed());
 
     const Screen screen = tv.screen(now);

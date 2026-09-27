@@ -39,7 +39,7 @@ void Tv::update(uint32_t nowMs, bool nextPressed, bool powerPressed) {
     switch (mode_) {
     case Mode::Off:
     case Mode::PowerOff:
-        // Будящее нажатие только включает: канал остаётся прежним.
+        // A waking press only turns the TV on; the channel stays the same.
         if (pressed) {
             powerOn(nowMs);
         }
@@ -62,7 +62,7 @@ void Tv::update(uint32_t nowMs, bool nextPressed, bool powerPressed) {
 
 Screen Tv::screen(uint32_t nowMs) const {
     Screen s{mode_, channel_, 0, false, 0};
-    // Беззнаковое вычитание корректно переживает переполнение millis().
+    // Unsigned subtraction handles the millis() rollover correctly.
     const bool numberVisible =
         numberShown_ && (nowMs - numberSinceMs_) < numberForMs_;
 
@@ -94,8 +94,8 @@ void Tv::powerOn(uint32_t nowMs) {
 }
 
 void Tv::powerOff(uint32_t nowMs) {
-    // Схлопывается то, что было на экране; после помех это первый кадр
-    // нового канала.
+    // Collapse whatever was on the screen; if power is pressed during
+    // static, that is the first frame of the new channel.
     frozenFrame_ = mode_ == Mode::Picture
                        ? frameAt(channels_[channel_], nowMs - pictureSinceMs_)
                        : 0;
@@ -108,7 +108,7 @@ void Tv::switchChannel(uint32_t nowMs) {
     channel_ = (channel_ + 1) % channelCount_;
     mode_ = Mode::Static;
     modeSinceMs_ = nowMs;
-    // Номер горит во время помех и ещё kNumberMs после них.
+    // The number stays up during static and for kNumberMs after it.
     showNumber(nowMs, kStaticMs + kNumberMs);
 }
 

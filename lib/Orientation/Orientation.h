@@ -2,30 +2,30 @@
 
 #include <stdint.h>
 
-// Решает по акселерометру, перевёрнут ли телевизор на 180°.
+// Uses the accelerometer to decide whether the TV is flipped by 180°.
 //
-// Телевизор стоит на длинной грани, поэтому тяжесть направлена поперёк
-// платы, вдоль её короткой оси X. Знак X говорит, на какой из двух длинных
-// граней он стоит. Стоймя (тяжесть вдоль Y) и плашмя (вдоль Z) верх не
-// определить — тогда ориентация остаётся прежней.
+// The TV stands on a long edge, so gravity points across the board, along
+// its short X axis. The sign of X tells which of the two long edges it is
+// standing on. Upright (gravity along Y) or lying flat (along Z), there is
+// no telling which way is up, so the orientation stays as it was.
 //
-// Как и всё в lib/, железа не касается: на входе время и ускорение, на
-// выходе решение.
+// Like everything in lib/, it never touches hardware: time and acceleration
+// go in, a decision comes out.
 class Orientation {
   public:
-    static constexpr float kMinG = 0.6f;       // проекция тяжести на X, g
-    static constexpr float kShakeG = 0.25f;    // допуск |a| от 1 g
-    static constexpr uint32_t kSettleMs = 400; // сколько держать новое положение
+    static constexpr float kMinG = 0.6f;       // min gravity along X, g
+    static constexpr float kShakeG = 0.25f;    // allowed |a| deviation from 1 g
+    static constexpr uint32_t kSettleMs = 400; // how long a new side must hold
 
-    // ax, ay, az — ускорение в g в осях платы (M5.Imu.getAccel).
-    // Возвращает flipped().
+    // ax, ay, az: acceleration in g in the board's axes (M5.Imu.getAccel).
+    // Returns flipped().
     bool update(uint32_t nowMs, float ax, float ay, float az);
 
     bool flipped() const { return flipped_; }
 
-    // Следующее ясное показание применится сразу, без ожидания. Нужно
-    // при старте и после сна экрана: телевизор могли перевернуть, пока
-    // он был погашен.
+    // The next clear reading takes effect at once, with no waiting, as it
+    // does for a new Orientation. Needed after the screen sleeps: the TV may
+    // have been turned over while it was off.
     void reset();
 
   private:

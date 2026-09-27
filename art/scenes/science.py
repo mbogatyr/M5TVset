@@ -1,4 +1,4 @@
-"""Наука: сова-учёный ставит опыт — колба пузырится, меняет цвет и делает POP!"""
+"""Science: an owl scientist runs an experiment; the flask bubbles, changes color and goes POP!"""
 
 import math
 
@@ -9,7 +9,7 @@ from svg import (
 SLUG = "science"
 TITLE = "Science"
 
-# жидкость, пузыри (0 — мелкие, 1 — крупные), пена, взрыв, пробирка в крыле, лицо совы
+# liquid, bubbles (0 small, 1 large), foam, pop, test tube in the wing, owl face
 STATES = [
     ("#6fdc6f", 0, False, False, False, "look"),
     ("#6fdc6f", 1, False, False, True, "look"),
@@ -27,7 +27,7 @@ OWL_LIGHT = "#bca08f"
 def lab():
     return g(
         rect(0, 0, W, 135, "url(#wall)"),
-        # полка с баночками
+        # shelf with jars
         rect(6, 34, 66, 4, "#a0714f", **outlined(1.2)),
         circle(18, 27, 6, "#ff6b6b", **outlined(1.3)), rect(15.5, 18, 5, 5, "#ff6b6b", **outlined(1)),
         rect(32, 14, 10, 20, "#4da6ff", rx=2, **outlined(1.3)), rect(34, 10, 6, 4, "#8a5a3c"),
@@ -138,7 +138,7 @@ def owl(face, holding_tube):
         poly([(50, 50), (52, 50 + tuft - 10), (60, 46)], OWL, **outlined(1.4)),
         poly([(92, 50), (90, 50 + tuft - 10), (82, 46)], OWL, **outlined(1.4)),
         ellipse(71, 80, 25, 32, OWL, **outlined(1.8)),
-        # халат
+        # lab coat
         path("M47,86 Q48,68 60,66 L71,90 L82,66 Q94,68 95,86 L95,112 L47,112 Z", fill=WHITE,
              **outlined(1.5)),
         ellipse(71, 78, 8, 10, OWL_LIGHT),
@@ -147,7 +147,7 @@ def owl(face, holding_tube):
         path("M54,80 Q44,90 46,100", stroke=INK, stroke_width=9, stroke_linecap="round"),
         path("M54,80 Q44,90 46,100", stroke=WHITE, stroke_width=6.4, stroke_linecap="round"),
         wing_right,
-        # голова и очки
+        # head and goggles
         rect(52, 58, 38, 4, "#3b4454", rx=2),
         goggles_eye(62, 60, face),
         goggles_eye(80, 60, face),

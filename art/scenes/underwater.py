@@ -1,4 +1,4 @@
-"""Подводный мир: плывут рыбки, поднимаются пузыри, осьминог шевелит щупальцами."""
+"""Underwater: fish swim by, bubbles rise, an octopus wiggles its tentacles."""
 
 import math
 
@@ -28,12 +28,12 @@ def seabed():
              **outlined(1.4)),
         circle(62, 126, 1.5, "#d9b56a"), circle(120, 124, 1.8, "#d9b56a"),
         circle(160, 129, 1.4, "#d9b56a"),
-        # морская звезда
+        # starfish
         translate(44, 124, poly(
             [(math.cos(math.radians(a)) * (7 if i % 2 == 0 else 3),
               math.sin(math.radians(a)) * (7 if i % 2 == 0 else 3))
              for i, a in enumerate(range(-90, 270, 36))], "#ff8c42", **outlined(1.2))),
-        # ракушка
+        # seashell
         translate(104, 125, path("M-6,2 Q0,-9 6,2 Z", fill="#ffb3c7", **outlined(1.2)),
                   path("M0,2 L0,-5 M-3,2 L-2,-4 M3,2 L2,-4", stroke=INK, stroke_width=0.8)),
     )

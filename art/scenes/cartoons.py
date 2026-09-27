@@ -1,4 +1,4 @@
-"""Мультфильмы: рыжий котёнок прыгает через скачущий мяч, солнце подмигивает."""
+"""Cartoons: a ginger kitten jumps over a bouncing ball, the sun winks."""
 
 from svg import (
     INK, W, WHITE, bug, circle, cheek, ellipse, eye, frame, g, linear, outlined,
@@ -14,7 +14,7 @@ GINGER = "#f7923a"
 GINGER_DARK = "#d9661f"
 CREAM = "#ffe7c7"
 
-# (x лап, высота над землёй, поза, смотрит вправо)
+# (paw x, height above the ground, pose, facing right)
 KITTEN = [
     (66, 0, "crouch", True),
     (120, 52, "leap", True),
@@ -23,7 +23,7 @@ KITTEN = [
     (120, 52, "leap", False),
     (66, 0, "stand", False),
 ]
-# (высота центра мяча над землёй, сплющен)
+# (ball center height above the ground, squashed)
 BALL = [(34, False), (10, True), (26, False), (40, False), (10, True), (26, False)]
 SUN_WINK = {3}
 

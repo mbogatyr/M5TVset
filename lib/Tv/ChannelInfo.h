@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-// Канал — несколько кадров, которые крутятся по кругу. Логике нужны только
-// их длительности; сами картинки лежат в src/ и логике не видны.
+// A channel is a few frames that play in a loop. The logic needs only their
+// durations; the images themselves live in src/ and the logic never sees them.
 struct ChannelInfo {
     const uint16_t *frameMs;
     uint8_t frameCount;

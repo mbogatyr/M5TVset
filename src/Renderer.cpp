@@ -4,16 +4,16 @@
 
 namespace {
 
-// Альбомные ориентации: в kRotation KEY1 справа от экрана, как кнопки на
-// корпусе телевизора (проверено на плате), в kFlippedRotation — слева.
+// Landscape orientations: kRotation puts KEY1 to the right of the screen, like
+// the buttons on a TV (checked on the board); kFlippedRotation, on the left.
 constexpr uint8_t kRotation = 1;
 constexpr uint8_t kFlippedRotation = 3;
 
 constexpr int kWidth = 240;
 constexpr int kHeight = 135;
 
-// Доля эффекта кинескопа, за которую картинка сжимается в полосу; остаток
-// уходит на то, чтобы полоса стянулась в точку.
+// Share of the CRT effect spent squeezing the picture into a line; the rest
+// goes to shrinking the line into a dot.
 constexpr float kSqueezeShare = 0.6f;
 
 using Mode = Screen::Mode;
@@ -29,7 +29,7 @@ void Renderer::begin() {
     M5.Display.setRotation(kRotation);
     M5.Display.fillScreen(TFT_BLACK);
 
-    // По 65 КБ на спрайт; на StickS3 есть 8 МБ PSRAM.
+    // 65 KB per sprite; the StickS3 has 8 MB of PSRAM.
     canvas_.setColorDepth(16);
     canvas_.setPsram(true);
     canvas_.createSprite(kWidth, kHeight);
@@ -87,7 +87,7 @@ void Renderer::draw(const Screen &screen) {
 }
 
 void Renderer::loadPicture(uint8_t channel, uint8_t frame) {
-    // PNG раскодируется только при смене кадра, а не на каждом такте.
+    // The PNG is decoded only when the frame changes, not on every tick.
     if (hasPicture_ && pictureChannel_ == channel && pictureFrame_ == frame) {
         return;
     }
@@ -100,9 +100,9 @@ void Renderer::loadPicture(uint8_t channel, uint8_t frame) {
 }
 
 void Renderer::paintStatic() {
-    // Серый «снег» блоками 2x2 прямо в буфер спрайта: через drawPixel
-    // это заметно медленнее. Спрайт хранит RGB565 с переставленными
-    // байтами, поэтому серый собирается и переворачивается вручную.
+    // Grey "snow" in 2x2 blocks, written straight into the sprite buffer:
+    // drawPixel is noticeably slower. The sprite stores RGB565 with its
+    // bytes swapped, so the grey is packed and byte-swapped by hand.
     auto *pixels = static_cast<uint16_t *>(canvas_.getBuffer());
     for (int y = 0; y < kHeight; y += 2) {
         for (int x = 0; x < kWidth; x += 2) {
@@ -123,7 +123,7 @@ void Renderer::paintStatic() {
 }
 
 void Renderer::paintCollapse(uint8_t collapse) {
-    // collapse: 0 — картинка целиком, 255 — экран уже погас.
+    // collapse: 0 is the full picture, 255 means the screen has gone dark.
     const float p = collapse / 255.0f;
     canvas_.fillSprite(TFT_BLACK);
 

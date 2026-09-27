@@ -1,4 +1,4 @@
-"""Спорт: футболист бьёт по воротам, вратарь прыгает мимо, GOAL!, трибуны ликуют."""
+"""Sports: a player shoots at the goal, the goalie dives and misses, GOAL!, the crowd cheers."""
 
 from svg import (
     HEAVY_FONT, INK, W, WHITE, bug, circle, ellipse, eye, frame, g, line, outlined,
@@ -10,7 +10,7 @@ TITLE = "Sports"
 GROUND = 112
 SKIN = "#f2c29b"
 
-# (x игрока, подъём, поза), (x, y мяча), поза вратаря, счёт, GOAL!
+# (player x, lift, pose), (ball x, y), goalie pose, score, GOAL!
 STATES = [
     ((40, 0, "run"), (64, GROUND - 5), "ready", "0:0", False),
     ((54, 0, "kick"), (74, GROUND - 8), "ready", "0:0", False),
@@ -69,7 +69,7 @@ def limb(x1, y1, x2, y2, color, width=3.4):
 
 
 def kid(pose, shirt, gloves=None, happy=False):
-    """Футболист в локальных координатах: (0, 0) — точка между ступнями."""
+    """Soccer player in local coordinates: (0, 0) is the point between the feet."""
     hand = gloves or SKIN
     legs = {
         "run": [(-3, -8, -9, 0), (3, -8, 8, -2)],

@@ -1,4 +1,4 @@
-<title>Телевизор M5TVset</title>
+<title>M5TVset toy TV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -59,7 +59,7 @@
     gap: 48px;
   }
 
-  /* --- вступление --- */
+  /* --- intro --- */
   .intro { display: grid; gap: 12px; max-width: 68ch; }
   .eyebrow {
     margin: 0;
@@ -77,7 +77,7 @@
   .lede { margin: 0; color: var(--muted); font-size: 17px; }
   .lede strong { color: var(--ink); font-weight: 600; }
 
-  /* --- телевизор --- */
+  /* --- TV --- */
   .stage {
     display: grid;
     grid-template-columns: minmax(0, auto) minmax(0, 1fr);
@@ -239,7 +239,7 @@
   }
   .feedback q { font-family: var(--mono); font-size: 14px; }
 
-  /* --- раскадровки --- */
+  /* --- storyboards --- */
   .boards { display: grid; gap: 56px; }
   .boards-head { display: grid; gap: 6px; max-width: 68ch; }
   h2 { margin: 0; font: 800 24px/1.2 var(--display); text-wrap: balance; }
@@ -315,23 +315,23 @@
 
 <main class="page">
   <header class="intro">
-    <p class="eyebrow">Превью кадров · M5StickS3 · экран 240×135</p>
-    <h1>Телевизор M5TVset</h1>
-    <p class="lede">Одиннадцать каналов для игрушечного телевизора в домике из кубиков, все надписи на экране по-английски. Кадры и их длительности здесь те же, что попадут в прошивку: это одни и те же PNG. <strong>Ничего ещё не прошито</strong>: сначала посмотрите картинки и скажите, что переделать.</p>
+    <p class="eyebrow">Channel preview · M5StickS3 · 240×135 screen</p>
+    <h1>M5TVset toy TV</h1>
+    <p class="lede">A preview of all <strong>11 channels</strong> of a toy TV for a brick-built house. These are the same PNG frames the firmware shows, with the same timings.</p>
   </header>
 
-  <section class="stage" aria-label="Симулятор телевизора">
+  <section class="stage" aria-label="TV simulator">
     <div class="tv-wrap">
       <div class="tv" id="tv">
         <div class="studs" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <div class="screen-bezel">
-          <canvas id="tv-canvas" width="240" height="135" role="img" aria-label="Экран телевизора"></canvas>
+          <canvas id="tv-canvas" width="240" height="135" role="img" aria-label="TV screen"></canvas>
         </div>
         <div class="panel">
-          <button class="key key-1" id="key1" type="button" aria-label="KEY1: следующий канал">KEY1</button>
-          <span class="key-label">канал</span>
-          <button class="key key-2" id="key2" type="button" aria-label="KEY2: включить или выключить">KEY2</button>
-          <span class="key-label">вкл/выкл</span>
+          <button class="key key-1" id="key1" type="button" aria-label="KEY1: next channel">KEY1</button>
+          <span class="key-label">channel</span>
+          <button class="key key-2" id="key2" type="button" aria-label="KEY2: turn on or off">KEY2</button>
+          <span class="key-label">on/off</span>
         </div>
       </div>
       <div class="feet" aria-hidden="true"><span></span><span></span></div>
@@ -339,33 +339,33 @@
 
     <div class="side">
       <div class="now" aria-live="polite">
-        <span class="now-label">Сейчас в эфире</span>
+        <span class="now-label">Now on air</span>
         <span class="now-title" id="now-title">1 · News</span>
-        <span class="now-frame" id="now-frame">кадр 1 из 8</span>
+        <span class="now-frame" id="now-frame">frame 1 of 8</span>
       </div>
 
-      <ul class="chips" id="chips" aria-label="Каналы"></ul>
+      <ul class="chips" id="chips" aria-label="Channels"></ul>
 
-      <div class="seg" role="group" aria-label="Размер экрана">
-        <button type="button" id="size-big" aria-pressed="true">Крупно, ×2</button>
-        <button type="button" id="size-real" aria-pressed="false">Как на плате, 25 мм</button>
+      <div class="seg" role="group" aria-label="Screen size">
+        <button type="button" id="size-big" aria-pressed="true">Large, ×2</button>
+        <button type="button" id="size-real" aria-pressed="false">Actual size, 25 mm</button>
       </div>
 
       <ul class="rules">
-        <li><b>KEY1</b> (<kbd>→</kbd> или <kbd>Enter</kbd>): помехи 0,4 с, следующий канал, номер в углу горит 2 с. После последнего снова первый.</li>
-        <li><b>KEY2</b> (<kbd>пробел</kbd>): экран гаснет, как у старого кинескопа. Любая кнопка включает на том же канале.</li>
-        <li><b>3 минуты без нажатий</b>: телевизор гаснет сам.</li>
-        <li>Кружки с каналами нужны только для просмотра, на плате каналы листаются по кругу.</li>
+        <li><b>KEY1</b> (<kbd>→</kbd> or <kbd>Enter</kbd>): 0.4 s of static, then the next channel. Its number stays in the corner for 2 s. After the last channel comes the first.</li>
+        <li><b>KEY2</b> (<kbd>Space</kbd>): the screen shuts off like an old CRT. Any key turns it back on at the same channel.</li>
+        <li><b>3 minutes without a key press</b>: the TV turns itself off.</li>
+        <li>The channel chips are only for this preview. On the board, KEY1 cycles through the channels.</li>
       </ul>
 
-      <p class="feedback">Чтобы попросить правку, напишите в чат номер канала и кадра из раскадровки ниже, например <q>Sports, кадр 4: вратарь пусть прыгает выше</q>.</p>
+      <p class="feedback">Frame numbers match the files in <q>art/frames/&lt;NN&gt;_&lt;channel&gt;/&lt;MM&gt;.png</q>. NN is the channel number and MM is the frame number minus one, both zero-padded. For example, Sports frame 4 is <q>art/frames/05_sport/03.png</q>.</p>
     </div>
   </section>
 
   <section class="boards" aria-labelledby="boards-title">
     <div class="boards-head">
-      <h2 id="boards-title">Раскадровка</h2>
-      <p>Каждый канал крутится по кругу. Слева цикл в движении, справа все кадры с номерами и временем показа. Кадр, который сейчас идёт в цикле, подсвечен.</p>
+      <h2 id="boards-title">Storyboards</h2>
+      <p>Each channel plays in a loop. The loop runs on the left. On the right are all frames with their numbers and durations. The frame that is playing now is highlighted.</p>
     </div>
     <div id="boards"></div>
   </section>
@@ -374,7 +374,7 @@
 <script>
   const CHANNELS = /*CHANNELS*/[];
 
-  // Те же тайминги, что в прошивке (lib/Tv).
+  // Same timings as in the firmware (lib/Tv).
   const STATIC_MS = 400;
   const OSD_MS = 2000;
   const POWER_MS = 400;
@@ -399,15 +399,10 @@
     return 0;
   }
 
-  const plural = (n, one, few, many) => {
-    const m10 = n % 10, m100 = n % 100;
-    if (m10 === 1 && m100 !== 11) return one;
-    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-    return many;
-  };
-  const seconds = ms => (ms / 1000).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+  const plural = (n, one, many) => (n === 1 ? one : many);
+  const seconds = ms => (ms / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 });
 
-  // --- телевизор ---------------------------------------------------------
+  // --- TV ----------------------------------------------------------------
 
   const tv = {
     mode: 'powerOn', // powerOn | picture | static | powerOff | off
@@ -503,7 +498,7 @@
     ctx.fillText(label, 8, 6);
   }
 
-  // p: 0 — полная картинка, 1 — погасшая точка
+  // p: 0 is the full picture, 1 is the faded-out dot
   function drawCollapse(now, p) {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, 240, 135);
@@ -543,7 +538,7 @@
     }
   }
 
-  // --- подписи и переключатели -------------------------------------------
+  // --- labels and switches -----------------------------------------------
 
   const nowTitle = document.getElementById('now-title');
   const nowFrame = document.getElementById('now-frame');
@@ -574,11 +569,11 @@
   function updateStatus(now) {
     const ch = CHANNELS[tv.channel];
     let frameText;
-    if (tv.mode === 'off') frameText = 'телевизор выключен';
-    else if (tv.mode === 'static') frameText = 'помехи, переключаемся';
-    else if (tv.mode === 'powerOn') frameText = 'включается';
-    else if (tv.mode === 'powerOff') frameText = 'выключается';
-    else frameText = `кадр ${frameAt(ch, now - tv.channelSince) + 1} из ${ch.frames.length}`;
+    if (tv.mode === 'off') frameText = 'TV is off';
+    else if (tv.mode === 'static') frameText = 'static, switching';
+    else if (tv.mode === 'powerOn') frameText = 'turning on';
+    else if (tv.mode === 'powerOff') frameText = 'turning off';
+    else frameText = `frame ${frameAt(ch, now - tv.channelSince) + 1} of ${ch.frames.length}`;
     const status = `${tv.channel}|${frameText}`;
     if (status === lastStatus) return;
     lastStatus = status;
@@ -613,7 +608,7 @@
   }
   document.addEventListener('keydown', e => {
     if (e.target.closest && e.target.closest('button')) {
-      if (e.key === 'Enter' || e.key === ' ') return; // кнопка нажмётся сама
+      if (e.key === 'Enter' || e.key === ' ') return; // the focused button clicks itself
     }
     if (e.key === 'ArrowRight' || e.key === 'Enter') {
       e.preventDefault(); flash(key1); pressKey1();
@@ -622,7 +617,7 @@
     }
   });
 
-  // --- раскадровки -------------------------------------------------------
+  // --- storyboards -------------------------------------------------------
 
   const boardsEl = document.getElementById('boards');
   const loops = [];
@@ -637,19 +632,19 @@
       <div class="board-head">
         <span class="board-num">${c + 1}</span>
         <h3>${ch.title}</h3>
-        <span class="board-meta">${n} ${plural(n, 'кадр', 'кадра', 'кадров')} · цикл ${seconds(ch.cycle)} с</span>
+        <span class="board-meta">${n} ${plural(n, 'frame', 'frames')} · ${seconds(ch.cycle)} s loop</span>
       </div>
       <div class="board-body">
         <figure class="loop">
-          <canvas width="240" height="135" role="img" aria-label="${ch.title}: цикл кадров"></canvas>
-          <figcaption>цикл в движении, ×2</figcaption>
+          <canvas width="240" height="135" role="img" aria-label="${ch.title}: frame loop"></canvas>
+          <figcaption>loop in motion, ×2</figcaption>
         </figure>
         <ol class="strip">
           ${ch.frames.map((f, i) => `
             <li>
               <figure>
-                <img src="${f.src}" width="240" height="135" alt="${ch.title}, кадр ${i + 1}">
-                <figcaption><b>кадр ${i + 1}</b> · ${f.ms} мс</figcaption>
+                <img src="${f.src}" width="240" height="135" alt="${ch.title}, frame ${i + 1}">
+                <figcaption><b>frame ${i + 1}</b> · ${f.ms} ms</figcaption>
               </figure>
             </li>`).join('')}
         </ol>

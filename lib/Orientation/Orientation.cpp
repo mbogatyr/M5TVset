@@ -23,7 +23,7 @@ bool Orientation::update(uint32_t nowMs, float ax, float ay, float az) {
         pending_ = side;
         pendingSinceMs_ = nowMs;
     } else if (nowMs - pendingSinceMs_ >= kSettleMs) {
-        // Беззнаковое вычитание корректно переживает переполнение millis().
+        // Unsigned subtraction handles the millis() rollover correctly.
         flipped_ = wantFlipped;
         pending_ = Side::Unknown;
     }
@@ -36,7 +36,7 @@ void Orientation::reset() {
 }
 
 Orientation::Side Orientation::sideOf(float ax, float ay, float az) {
-    // Трясут или несут: в ускорении есть что-то кроме тяжести.
+    // Being shaken or carried: the reading holds more than just gravity.
     const float g2 = ax * ax + ay * ay + az * az;
     const float lo = 1.0f - kShakeG;
     const float hi = 1.0f + kShakeG;
@@ -48,8 +48,7 @@ Orientation::Side Orientation::sideOf(float ax, float ay, float az) {
     if (x < kMinG || x < fabsf(ay) || x < fabsf(az)) {
         return Side::Unknown;
     }
-    // Знак подобран так, что Normal соответствует setRotation(1) — KEY1
-    // справа от экрана. На плате не проверялось: если картинка вверх
-    // ногами в обоих положениях, поменять знак здесь.
+    // The sign is chosen so that Normal matches setRotation(1), with KEY1
+    // to the right of the screen. Checked on the board.
     return ax > 0 ? Side::Normal : Side::Flipped;
 }

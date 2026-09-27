@@ -1,4 +1,4 @@
-"""История: кот-фараон рассказывает про Древний Египет — пирамиды, верблюд, иероглифы."""
+"""History: a pharaoh cat talks about Ancient Egypt, with pyramids, a camel and hieroglyphs."""
 
 from svg import (
     HEAVY_FONT, INK, W, WHITE, bug, cheek, circle, ellipse, eye, frame, g, limb,
@@ -25,7 +25,7 @@ def desert():
         rect(0, 0, W, 135, "url(#sky)"),
         circle(186, 26, 16, "#fff3b0", opacity="0.5"),
         circle(186, 26, 11, "#ffd23f", **outlined(1.4)),
-        # пирамиды: освещённая и теневая грани
+        # pyramids: lit and shaded faces
         poly([(108, 96), (156, 44), (204, 96)], "#f6cf7a", **outlined(1.6)),
         poly([(156, 44), (204, 96), (170, 96)], "#d9a24a"),
         poly([(108, 96), (156, 44), (204, 96)], "none", **outlined(1.6)),
@@ -34,7 +34,7 @@ def desert():
         poly([(186, 96), (216, 64), (246, 96)], "none", **outlined(1.5)),
         path("M0,94 Q70,86 140,95 T240,92 L240,135 L0,135 Z", fill=SAND),
         path("M0,106 Q90,100 170,107 T240,104 L240,135 L0,135 Z", fill="#e7b458"),
-        # пальма
+        # palm tree
         rect(96, 74, 4, 26, "#8a5a3c", rx=2, **outlined(1.1), transform="rotate(6 98 100)"),
         *[ellipse(98 + dx, 72 + dy, 11, 3.5, "#4f9a35", **outlined(1.2),
                   transform=f"rotate({a} {98 + dx} {72 + dy})")
@@ -96,16 +96,16 @@ def pharaoh(index):
                for x1, y1, x2, y2 in ((24, 62, 18, 98), (30, 58, 25, 100), (60, 58, 65, 100),
                                      (66, 62, 72, 98))]
     return g(
-        # немес: платок с полосками
+        # nemes: the striped headcloth
         path("M20,58 Q24,36 45,34 Q66,36 70,58 L74,100 L62,104 L58,70 L32,70 L28,104 L16,100 Z",
              fill=GOLD, **outlined(1.6)),
         *stripes,
-        # широкое ожерелье
+        # broad collar necklace
         path("M18,118 Q20,94 45,92 Q70,94 72,118 Z", fill="#e6f0ff", **outlined(1.5)),
         path("M24,112 Q45,96 66,112", stroke=LAPIS, stroke_width=3),
         path("M28,117 Q45,104 62,117", stroke=GOLD, stroke_width=3),
         path("M32,108 Q45,100 58,108", stroke="#e63946", stroke_width=2.4),
-        # голова кошки
+        # cat head
         poly([(31, 48), (29, 32), (40, 42)], "#b89a70", **outlined(1.4)),
         poly([(59, 48), (61, 32), (50, 42)], "#b89a70", **outlined(1.4)),
         circle(45, 60, 16, "#c9aa7c", **outlined(1.7)),

@@ -2,7 +2,7 @@
 
 #include "Tv.h"
 
-// Три канала с разными длительностями кадров: цикл 600, 1000 и 1000 мс.
+// Three channels with different frame timings: 600, 1000 and 1000 ms cycles.
 static const uint16_t kFirstMs[] = {100, 200, 300};
 static const uint16_t kSecondMs[] = {500, 500};
 static const uint16_t kThirdMs[] = {1000};
@@ -21,7 +21,7 @@ static Tv startedTv(uint32_t idleMs = DisplayTimeout::kIdleMs) {
     return tv;
 }
 
-// Включился и уже показывает первый канал: картинка пошла с момента kPower.
+// Powered on and showing the first channel: the picture started at kPower.
 static Tv watchingTv(uint32_t idleMs = DisplayTimeout::kIdleMs) {
     Tv tv = startedTv(idleMs);
     tv.update(kPower, false, false);
@@ -52,7 +52,7 @@ void test_frame_at_loops_over_the_cycle(void) {
     TEST_ASSERT_EQUAL_UINT8(0, frameAt(kChannels[2], 123456));
 }
 
-// --- включение ---------------------------------------------------------------
+// --- power on ----------------------------------------------------------------
 
 void test_starts_with_the_power_on_effect_on_the_first_channel(void) {
     Tv tv = startedTv();
@@ -66,7 +66,7 @@ void test_power_on_progress_grows_to_full(void) {
     Tv tv = startedTv();
     idle(tv, kPower / 2);
     TEST_ASSERT_UINT8_WITHIN(2, 127, tv.screen(kPower / 2).progress);
-    // screen() без update() не переходит к картинке, но и за 255 не уходит
+    // without update(), screen() never moves on to the picture, nor past 255
     TEST_ASSERT_EQUAL_UINT8(255, tv.screen(kPower * 2).progress);
 }
 
@@ -96,7 +96,7 @@ void test_frames_advance_from_the_start_of_the_picture(void) {
     TEST_ASSERT_EQUAL_UINT8(0, tv.screen(kPower + 600).frame);
 }
 
-// --- KEY1: переключение канала ------------------------------------------------
+// --- KEY1: switching channels ------------------------------------------------
 
 void test_next_shows_static_with_the_new_channel_number(void) {
     Tv tv = watchingTv();
@@ -150,7 +150,7 @@ void test_next_during_static_switches_again_and_restarts_static(void) {
     TEST_ASSERT_EQUAL_UINT8(2, s.channel);
 }
 
-// --- KEY2: выключение и включение ------------------------------------------
+// --- KEY2: power off and on --------------------------------------------------
 
 void test_power_key_plays_the_power_off_effect_then_turns_off(void) {
     Tv tv = watchingTv();
@@ -163,7 +163,7 @@ void test_power_key_plays_the_power_off_effect_then_turns_off(void) {
 
 void test_power_off_keeps_the_frame_that_was_on_screen(void) {
     Tv tv = watchingTv();
-    idle(tv, kPower + 350); // третий кадр первого канала
+    idle(tv, kPower + 350); // third frame of the first channel
     pressPower(tv, kPower + 350);
     Screen s = tv.screen(kPower + 360);
     TEST_ASSERT_EQUAL(Mode::PowerOff, s.mode);
@@ -173,7 +173,7 @@ void test_power_off_keeps_the_frame_that_was_on_screen(void) {
 
 void test_any_key_turns_the_tv_back_on_the_same_channel(void) {
     Tv tv = watchingTv();
-    pressNext(tv, 5000); // второй канал
+    pressNext(tv, 5000); // second channel
     idle(tv, 6000);
     pressPower(tv, 7000);
     idle(tv, 8000);
@@ -202,7 +202,7 @@ void test_key_during_power_off_turns_the_tv_back_on(void) {
     TEST_ASSERT_EQUAL(Mode::PowerOn, tv.screen(5100).mode);
 }
 
-// --- простой -------------------------------------------------------------------
+// --- idle --------------------------------------------------------------------
 
 void test_tv_turns_itself_off_after_idle_time(void) {
     Tv tv = watchingTv(10000);
@@ -233,13 +233,13 @@ void test_tv_turned_on_after_idle_off_stays_on(void) {
     TEST_ASSERT_EQUAL(Mode::Picture, tv.screen(59999).mode);
 }
 
-// --- переполнение millis() ---------------------------------------------------
+// --- millis() rollover -------------------------------------------------------
 
 void test_tv_survives_the_millis_rollover(void) {
-    const uint32_t start = 0xFFFFFF00u; // до переполнения 256 мс
+    const uint32_t start = 0xFFFFFF00u; // 256 ms before rollover
     Tv tv(kChannels, kCount, 10000);
     tv.begin(start);
-    idle(tv, start + kPower); // уже после нуля
+    idle(tv, start + kPower); // already past zero
     TEST_ASSERT_EQUAL(Mode::Picture, tv.screen(start + kPower).mode);
     idle(tv, start + kPower + 100);
     TEST_ASSERT_EQUAL_UINT8(1, tv.screen(start + kPower + 100).frame);

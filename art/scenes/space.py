@@ -1,4 +1,4 @@
-"""Космос: мерцают звёзды, пролетает ракета, космонавт машет рукой."""
+"""Space: stars twinkle, a rocket flies by, an astronaut waves."""
 
 import random
 

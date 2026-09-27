@@ -1,4 +1,4 @@
-"""Мультик: щенок и зайка строят домик из кубиков, а он с грохотом разваливается."""
+"""Playtime: a puppy and a bunny build a house out of bricks, and it comes crashing down."""
 
 from svg import (
     INK, W, WHITE, bug, cheek, circle, ellipse, eye, frame, g, limb, outlined,
@@ -8,13 +8,13 @@ SLUG = "playtime"
 TITLE = "Playtime"
 
 FLOOR = 110
-HOUSE_X = 96  # левый край домика
+HOUSE_X = 96  # left edge of the house
 BRICK_W, BRICK_H = 24, 11
 
 PUPPY = {"fur": "#e8b77a", "belly": "#fbe3c2", "ear": "#9c6b3f"}
 BUNNY = {"fur": "#f1eef7", "belly": "#ffffff", "ear": "#ffb3c7"}
 
-# (x, поза, лицо, в руках) щенка и зайки, этап домика, наклон, развалился, кубиков в куче
+# puppy and bunny (x, pose, face, holding), house stage, tilt, collapsed, bricks in the pile
 FRAMES = [
     ((56, "carry", "smile", "brick"), (184, "wave", "smile", None), 0, 0, False, 3),
     ((78, "carry", "smile", "brick"), (184, "carry", "smile", "roof"), 2, 0, False, 1),
@@ -26,7 +26,7 @@ FRAMES = [
 ]
 DURATIONS = [600, 600, 600, 600, 900, 500, 1100]
 
-# (цвет, окно, дверь) — нижний ряд слева направо, потом верхний
+# (color, window, door): bottom row from left to right, then the top row
 HOUSE_BRICKS = [("#3d7be0", False, True), ("#ffcf3f", False, False),
                 ("#4cbb5a", True, False), ("#ff8c42", True, False)]
 ROOF = "#e84a4a"
@@ -49,7 +49,7 @@ def room():
     return g(
         rect(0, 0, W, 98, "#fff0c9"),
         *dots,
-        # детский рисунок на стене
+        # child's drawing on the wall
         rect(150, 14, 44, 34, WHITE, **outlined(1.4), transform="rotate(3 172 31)"),
         circle(164, 26, 5, "#ffd23f"),
         path("M154,44 Q164,34 172,42 T190,40", stroke="#4cbb5a", stroke_width=2.5),
@@ -63,7 +63,7 @@ def room():
 
 
 def brick(x, y, color, window=False, door=False, angle=0):
-    """Кубик: (x, y) — левый верхний угол корпуса, шипы торчат над ним."""
+    """Brick: (x, y) is the top-left corner of the body, the studs stick out above it."""
     parts = [
         rect(4, -3, 6, 3.6, color, rx=1, **outlined(1)),
         rect(14, -3, 6, 3.6, color, rx=1, **outlined(1)),
@@ -78,7 +78,7 @@ def brick(x, y, color, window=False, door=False, angle=0):
 
 
 def roof(x, y, angle=0):
-    """Крыша: (x, y) — левый нижний угол."""
+    """Roof: (x, y) is the bottom-left corner."""
     return translate(
         x, y,
         poly([(0, 0), (28, -20), (56, 0)], ROOF, **outlined(1.5)),
@@ -120,7 +120,7 @@ def pile(count):
 
 
 def critter(kind, pose, face):
-    """Щенок или зайка в локальных координатах: (0, 0) — между лапами."""
+    """Puppy or bunny in local coordinates: (0, 0) is between the feet."""
     c = PUPPY if kind == "puppy" else BUNNY
     fur = c["fur"]
     parts = []

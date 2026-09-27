@@ -5,47 +5,47 @@
 #include "ChannelInfo.h"
 #include "DisplayTimeout.h"
 
-// Номер кадра канала через elapsedMs после начала показа. Кадры идут по
-// кругу, у каждого своя длительность.
+// Index of the channel frame shown elapsedMs after the channel came on.
+// Frames play in a loop, each with its own duration.
 uint8_t frameAt(const ChannelInfo &channel, uint32_t elapsedMs);
 
-// Что должно быть на экране прямо сейчас. Renderer рисует ровно это.
+// What should be on the screen right now. Renderer draws exactly this.
 struct Screen {
     enum class Mode : uint8_t {
-        Off,      // экран погашен
-        PowerOn,  // точка разворачивается в картинку
-        PowerOff, // картинка схлопывается в полосу, потом в точку
-        Static,   // помехи между каналами
-        Picture,  // кадр канала
+        Off,      // screen is off
+        PowerOn,  // a dot expands into the picture
+        PowerOff, // the picture collapses into a line, then into a dot
+        Static,   // static between channels
+        Picture,  // a channel frame
     };
 
     Mode mode;
     uint8_t channel;
-    uint8_t frame;    // кадр для Picture; для PowerOn/PowerOff — тот, что схлопывается
-    bool showNumber;  // номер канала в углу
-    uint8_t progress; // фаза PowerOn/PowerOff: 0 — начало, 255 — конец
+    uint8_t frame;    // for Picture; also the one PowerOn/PowerOff animates
+    bool showNumber;  // channel number in the corner
+    uint8_t progress; // PowerOn/PowerOff phase: 0 is the start, 255 the end
 };
 
-// Игрушечный телевизор: KEY1 листает каналы, KEY2 включает и выключает,
-// после простоя гаснет сам.
+// A toy TV: KEY1 cycles through the channels, KEY2 turns it off, any key
+// turns it back on, and it turns itself off when left idle.
 //
-// Как и всё в lib/, железа не касается: на входе время и нажатия, на выходе
-// Screen.
+// Like everything in lib/, it never touches hardware: time and key presses
+// go in, a Screen comes out.
 class Tv {
   public:
-    static constexpr uint32_t kPowerMs = 400;   // эффект кинескопа
-    static constexpr uint32_t kStaticMs = 400;  // помехи при переключении
-    static constexpr uint32_t kNumberMs = 2000; // номер канала после смены
+    static constexpr uint32_t kPowerMs = 400;   // CRT effect
+    static constexpr uint32_t kStaticMs = 400;  // static when switching
+    static constexpr uint32_t kNumberMs = 2000; // channel number after a switch
 
     Tv(const ChannelInfo *channels, uint8_t channelCount,
        uint32_t idleMs = DisplayTimeout::kIdleMs);
 
-    // Включается с эффектом кинескопа на первом канале. Вызывать один раз
-    // при старте.
+    // Turns on with the CRT effect, on the first channel. Call once at
+    // startup.
     void begin(uint32_t nowMs);
 
-    // Вызывать каждый такт. nextPressed и powerPressed — нажатия KEY1 и
-    // KEY2 в этом такте (фронт, а не удержание).
+    // Call every tick. nextPressed and powerPressed are KEY1 and KEY2
+    // presses in this tick (the press edge, not the key being held).
     void update(uint32_t nowMs, bool nextPressed, bool powerPressed);
 
     Screen screen(uint32_t nowMs) const;
@@ -63,7 +63,7 @@ class Tv {
 
     Screen::Mode mode_ = Screen::Mode::Off;
     uint8_t channel_ = 0;
-    uint8_t frozenFrame_ = 0; // кадр, который схлопывается при выключении
+    uint8_t frozenFrame_ = 0; // the frame that collapses on power-off
     uint32_t modeSinceMs_ = 0;
     uint32_t pictureSinceMs_ = 0;
 

@@ -1,6 +1,6 @@
-"""Каналы телевизора в порядке переключения KEY1.
+"""TV channels in the order KEY1 switches through them.
 
-Каждый модуль сцены задаёт SLUG, TITLE и frames() -> [(svg, мс), ...].
+Each scene module defines SLUG, TITLE and frames() -> [(svg, ms), ...].
 """
 
 from . import (animals, cartoons, history, news, playtime, science, space, sport, ufo,
