@@ -2,167 +2,206 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-M5TVset — игрушечный телевизор на M5StickS3 для комнатки в домике LEGO.
-Экран в альбомной ориентации, одиннадцать каналов (News, Animals, Cartoons,
-Weather, Sports, Space, Underwater, Science, Playtime, UFO, History), на
-каждом по кругу крутятся 6–8 мультяшных кадров. Персонажи только свои:
-чужих героев (Спанчбоб и т. п.) не рисуем — это чужие авторские права. Всё, что видно на экране, — по-английски; комментарии
-и документация — по-русски. KEY1 листает каналы с «помехами» и номером
-канала в углу, KEY2 включает и выключает телевизор эффектом кинескопа.
+M5TVset is a toy TV on an M5StickS3 for a room in a LEGO house. The screen is
+landscape, with eleven channels (News, Animals, Cartoons, Weather, Sports,
+Space, Underwater, Science, Playtime, UFO, History); each loops 6–8 cartoon
+frames. KEY1 flips channels with TV static and a channel number in the
+corner, KEY2 turns the TV on and off with a CRT effect.
 
-## Команды
+All characters are our own. Do not draw other people's characters
+(SpongeBob and the like): they are someone else's copyright.
 
-PlatformIO установлен не глобально, а официальным установщиком в venv. Бинарник
-лежит по пути `~/.platformio/penv/bin/pio` — в `PATH` его нет, вызывать надо
-полным путём.
+Everything shown on screen is in English. Documentation, code comments and
+commit messages are in English too. Commits up to `da86162` are in Russian.
+
+## Commands
+
+PlatformIO is not installed globally but through the official installer, in
+a venv. The binary lives at `~/.platformio/penv/bin/pio`. It is not on
+`PATH`, so call it by its full path.
 
 ```bash
-~/.platformio/penv/bin/pio test -e native                         # юнит-тесты логики на хосте
-~/.platformio/penv/bin/pio test -e native -f test_display_timeout # один набор тестов
-~/.platformio/penv/bin/pio run -e sticks3                         # сборка прошивки
-~/.platformio/penv/bin/pio run -e sticks3 -t upload               # прошить плату
-~/.platformio/penv/bin/pio device monitor -e sticks3              # serial-монитор, 115200
-python3 art/build.py                                              # пересобрать кадры после правки сцен
-python3 art/build.py --sheet                                      # плюс раскадровки в art/.cache/
+~/.platformio/penv/bin/pio test -e native                         # unit tests of the logic, on the host
+~/.platformio/penv/bin/pio test -e native -f test_tv              # a single test suite
+~/.platformio/penv/bin/pio run -e sticks3                         # build the firmware
+~/.platformio/penv/bin/pio run -e sticks3 -t upload               # flash the board
+~/.platformio/penv/bin/pio run -e sticks3 -t merged               # single image for M5Burner
+~/.platformio/penv/bin/pio device monitor -e sticks3              # serial monitor, 115200
+python3 art/build.py                                              # rebuild the frames after editing scenes
+python3 art/build.py --sheet                                      # plus storyboards in art/.cache/
+python3 tools/channel_sheet.py                                    # docs/channels.png for the README
 ```
 
-Тулчейн xtensa-esp32s3 ставится в `~/.platformio/packages` один раз на машину
-(около восьми минут) и общий для всех проектов. Первая сборка нового проекта
-скачивает последнюю M5Unified в `.pio/` и занимает около 20 секунд.
+The xtensa-esp32s3 toolchain is installed into `~/.platformio/packages` once
+per machine (about eight minutes) and shared by all projects. The first
+build of a new project downloads the latest M5Unified into `.pio/` and takes
+about 20 seconds.
 
-## Архитектура
+## Architecture
 
-Деление на `lib/` и `src/` здесь не косметическое, а несущее:
+The split between `lib/` and `src/` is load-bearing, not cosmetic:
 
-- `lib/` — логика: чистый C++ без Arduino, M5Unified и вообще любых обращений
-  к железу.
-  - `Tv` — телевизор: режимы Off / PowerOn / PowerOff / Static / Picture,
-    переключение каналов, номер канала в углу, `frameAt()` по длительностям
-    кадров. На выходе `Screen` — что должно быть на экране сейчас.
-  - `DisplayTimeout` — детектор простоя (3 минуты без нажатий), им
-    пользуется `Tv`, чтобы выключиться самому.
-  - `Orientation` — по акселерометру решает, перевёрнут ли телевизор на
-    180°: знак ускорения по оси X платы, порог 0,6 g, новое положение должно
-    продержаться 400 мс, тряска и положения стоймя/плашмя игнорируются.
-  - `ChannelInfo.h` — длительности кадров канала; картинки логике не видны.
-- `src/` — всё, что знает про плату: `Renderer` рисует `Screen` на дисплее,
-  `Frames.h` + сгенерированный `generated/Frames.cpp` — PNG кадров во flash,
-  `main.cpp` связывает логику с железом.
+- `lib/` — logic: plain C++ with no Arduino, no M5Unified and no hardware
+  access of any kind.
+  - `Tv` — the TV: Off / PowerOn / PowerOff / Static / Picture modes,
+    channel switching, the channel number in the corner, and `frameAt()`
+    over frame durations. Its output is a `Screen`: what should be on the
+    display right now.
+  - `DisplayTimeout` — idle detector (3 minutes without a button press);
+    `Tv` uses it to turn itself off.
+  - `Orientation` — decides from the accelerometer whether the TV is turned
+    over by 180°: the sign of the acceleration along the board's X axis, a
+    0.6 g threshold, the new position has to hold for 400 ms, and shaking or
+    standing upright or lying flat are ignored.
+  - `ChannelInfo.h` — the frame durations of a channel; the logic never sees
+    the images.
+- `src/` — everything that knows about the board: `Renderer` draws a
+  `Screen` on the display, `Frames.h` plus the generated
+  `generated/Frames.cpp` hold the frame PNGs in flash, and `main.cpp` ties the
+  logic to the hardware.
 
-Окружение `native` собирает только `lib/` (у PlatformIO `test_build_src`
-по умолчанию `no`), поэтому логика тестируется на Mac без платы.
-**Нельзя тащить зависимости от железа в `lib/` — это сломает тесты.**
+The `native` environment builds only `lib/` (PlatformIO's `test_build_src`
+defaults to `no`), so the logic is tested on the Mac without the board.
+**Do not pull hardware dependencies into `lib/` — that breaks the tests.**
 
-### Время приходит параметром
+### Time comes in as a parameter
 
-Логика в `lib/` не зовёт `millis()` сама, а получает текущее время аргументом.
-Тогда в тестах можно подставить любой момент без ожидания, а в логике нет
-`delay()`: `loop()` крутится на 50 Гц и просто передаёт `millis()`.
+The logic in `lib/` never calls `millis()` itself; it gets the current time
+as an argument. Tests can then jump to any moment without waiting, and the
+logic has no `delay()`: `loop()` runs at 50 Hz and just passes `millis()`
+along.
 
-`millis()` переполняется примерно через 49 суток. Интервалы считать
-беззнаковым вычитанием `now - since` — так переполнение проходит незаметно.
+`millis()` wraps around after about 49 days. Compute intervals with unsigned
+subtraction, `now - since`, so the wraparound goes unnoticed.
 
-### Отрисовка
+### Drawing
 
-`Renderer` собирает кадр целиком в `M5Canvas` (спрайт в PSRAM) и выталкивает
-одним `pushSprite`. Рисование напрямую на экране даёт видимое мерцание.
+`Renderer` assembles the whole frame in an `M5Canvas` (a sprite in PSRAM) and
+pushes it with a single `pushSprite`. Drawing straight to the screen
+flickers visibly.
 
-`Renderer::draw()` сравнивает входные данные с предыдущим кадром и выходит,
-если ничего не изменилось; помехи (`Static`) рисуются каждый такт.
-`invalidate()` сбрасывает эту память; `main.cpp` вызывает его при пробуждении
-дисплея, потому что содержимое панели после сна потеряно.
+`Renderer::draw()` compares its input with the previous frame and returns if
+nothing changed; static (`Static`) is redrawn on every tick. `invalidate()`
+clears that memory; `main.cpp` calls it when the display wakes up, because
+the panel's contents are lost during sleep.
 
-Второй спрайт `picture_` держит раскодированный текущий кадр: `drawPng`
-вызывается только при смене канала или кадра. Эффект кинескопа сжимает
-`picture_` через `pushRotateZoom`, помехи пишутся прямо в буфер спрайта
-(RGB565 там с переставленными байтами).
+A second sprite, `picture_`, holds the current decoded frame, so `drawPng`
+runs only when the channel or the frame changes. The CRT effect squeezes
+`picture_` with `pushRotateZoom`, and the static is written straight into
+the sprite buffer (which stores RGB565 byte-swapped).
 
-Ориентация: `kRotation = 1` ставит KEY1 справа от экрана (проверено на
-плате), `kFlippedRotation = 3` — перевёрнутая. `main.cpp` каждый такт читает
-`M5.Imu.getAccel()` (BMI270, M5Unified включает его сама и переставляет оси
-под StickS3) и передаёт решение `Orientation` в `Renderer::setFlipped()`.
-Какой знак X соответствует обычному положению, выведено из соглашений
-M5Unified, а не проверено: если картинка вверх ногами в обоих положениях,
-поменять знак в `Orientation::sideOf()`.
+Orientation: `kRotation = 1` puts KEY1 to the right of the screen and
+`kFlippedRotation = 3` is the turned-over one. `main.cpp` reads
+`M5.Imu.getAccel()` on every tick (a BMI270; M5Unified enables it on its own
+and remaps the axes for the StickS3) and passes the `Orientation` decision to
+`Renderer::setFlipped()`. Both the rotation and the sign of X in
+`Orientation::sideOf()` were checked on the board.
 
-### Картинки каналов
+### Channel images
 
-Кадры рисуются кодом, а не руками: `art/scenes/<канал>.py` строит SVG
-каждого кадра одной параметризованной функцией сцены, общие детали (глаза,
-улыбки, значок канала) лежат в `art/svg.py`. `art/build.py`:
+The frames are drawn by code, not by hand: `art/scenes/<channel>.py` builds
+the SVG of each frame from one parameterized scene function, and the shared
+parts (eyes, smiles, the channel logo) live in `art/svg.py`.
+`art/scenes/__init__.py` sets the channel order. `art/build.py`:
 
-1. снимает каждый SVG headless-Chrome'ом в 4x и уменьшает Pillow до 240x135
-   (так сглаживание ровнее), снимки кэшируются в `art/.cache/` по хэшу SVG;
-2. квантует в палитру на 256 цветов методом median cut: PNG в ~4 раза меньше,
-   а градиенты воды и неба не ломаются полосами, как у octree;
-3. пишет `art/frames/`, `src/generated/Frames.cpp` (PNG массивами во flash +
-   длительности кадров) и `art/preview.html` (превью с симулятором кнопок).
+1. screenshots each SVG with headless Chrome at 4x and scales it down to
+   240x135 with Pillow (the antialiasing comes out smoother); the shots are
+   cached in `art/.cache/` by SVG hash;
+2. quantizes to a 256-color palette with median cut: the PNG gets about 4
+   times smaller, and the water and sky gradients don't break into bands the
+   way they do with octree;
+3. writes `art/frames/`, `src/generated/Frames.cpp` (the PNGs as arrays in
+   flash plus the frame durations) and `art/preview.html` (a preview with a
+   button simulator).
 
-`src/generated/Frames.cpp` руками не править — только сцены и перезапуск.
-Chrome запускать без `--user-data-dir`: с ним на macOS он снимает кадр, но
-не завершается. Всё, что едет через кадр (рыбы, птица, ракета, бегущая
-строка), двигается с шагом «период / число кадров» — тогда цикл замыкается
-без скачка.
+Never edit `src/generated/Frames.cpp` by hand — change the scenes and rerun
+the script. Run Chrome without `--user-data-dir`: on macOS it then takes the
+shot but never exits. Everything that moves across the frame (fish, bird,
+rocket, the news ticker) moves by "period / number of frames" per frame, so
+the loop closes without a jump.
 
-## Особенности платы
+## Board notes
 
-M5StickS3 — ESP32-S3-PICO-1-N8R8, 8 МБ flash, 8 МБ октального PSRAM, дисплей
-ST7789P3 135x240.
+M5StickS3 — ESP32-S3-PICO-1-N8R8, 8 MB flash, 8 MB octal PSRAM, ST7789P3
+135x240 display.
 
-- В PlatformIO **нет** board id `m5stack-sticks3`. Используется
-  `esp32-s3-devkitc-1` плюс `board_build.arduino.memory_type = qio_opi` и
-  разделы `default_8MB.csv`. Не «исправлять» это на несуществующий id.
-- USB нативный, без моста CH9102, поэтому порт на macOS называется
-  `/dev/cu.usbmodem*`, а не `/dev/cu.usbserial*`. Для вывода в Serial нужен
-  флаг `-DARDUINO_USB_CDC_ON_BOOT=1`, он уже прописан.
-- Кнопки: KEY1 на G11 (`M5.BtnA`), KEY2 на G12 (`M5.BtnB`). Свободны
-  Grove (G9/G10) и HAT2 (G1–G8, G43, G44).
+- PlatformIO has **no** `m5stack-sticks3` board id. The project uses
+  `esp32-s3-devkitc-1` plus `board_build.arduino.memory_type = qio_opi` and
+  the `default_8MB.csv` partitions. Don't "fix" this to a board id that
+  doesn't exist.
+- USB is native, with no CH9102 bridge, so on macOS the port is called
+  `/dev/cu.usbmodem*`, not `/dev/cu.usbserial*`. Serial output needs
+  `-DARDUINO_USB_CDC_ON_BOOT=1`, which is already set.
+- Buttons: KEY1 on G11 (`M5.BtnA`), KEY2 on G12 (`M5.BtnB`). Grove (G9/G10)
+  and HAT2 (G1–G8, G43, G44) are free.
 
-### Боковая кнопка обслуживается PMIC, а не прошивкой
+### Publishing to M5Burner
 
-| Действие | Результат |
+M5Burner writes the uploaded file starting at address 0x0, so it needs a full
+image. The app-only `firmware.bin` belongs at 0x10000; flashed at 0x0 it
+would overwrite the bootloader. `pio run -e sticks3 -t merged` (the
+`tools/merged_image.py` extra script) stitches the bootloader, partition
+table, `boot_app0` and the app into `.pio/build/sticks3/firmware-merged.bin`
+with esptool `merge_bin`. It takes the offsets and flash parameters from
+PlatformIO's own upload configuration, so the image matches what `upload`
+writes.
+
+The upload form at burner.m5stack.com/developer/firmware/upload asks for:
+- name, category and supported devices (StickS3);
+- description and version description, both Markdown;
+- version and project link;
+- the `.bin` package;
+- visibility: Public needs review;
+- a cover image: `docs/channels.png` works.
+
+### The side button is handled by the PMIC, not the firmware
+
+| Action | Result |
 |---|---|
-| Одиночное нажатие | Включение / сброс |
-| Двойное нажатие | Выключение питания |
-| Долгое удержание | Режим загрузки (мигает внутренний зелёный светодиод) |
+| Single press | Power on / reset |
+| Double press | Power off |
+| Long hold | Download mode (the internal green LED blinks) |
 
-Своя кнопка выключения в прошивке поэтому не нужна. Если понадобится
-выключаться программно (например, по простою), `M5.Power.powerOff()` раньше
-на StickS3 сразу же будил плату по таймеру —
-[M5Unified#235](https://github.com/m5stack/M5Unified/issues/235), исправлено
-в 0.2.23. На плате с исправленной версией это не проверялось.
+That is why the firmware has no power-off button of its own. If the board
+ever has to power off in software (on idle, say), note that on the StickS3
+`M5.Power.powerOff()` used to wake the board right back up on a timer —
+[M5Unified#235](https://github.com/m5stack/M5Unified/issues/235), fixed in
+0.2.23. That has not been checked on a board with the fixed version.
 
-`M5.Power` не задаёт для StickS3 `_wakeupPin`, так что готового пробуждения
-по кнопке из deep sleep нет — его пришлось бы настраивать вручную через
-`esp_sleep_enable_ext0_wakeup`.
+`M5.Power` does not set `_wakeupPin` for the StickS3, so there is no
+ready-made wake-up from deep sleep by button either; it would have to be set
+up by hand with `esp_sleep_enable_ext0_wakeup`.
 
-### Если заливка не проходит
+### If flashing fails
 
 `A fatal error occurred: Failed to connect to ESP32-S3: No serial data received.`
 
-Плата видна как `USB JTAG_serial debug unit` (VID 0x303A, PID 0x1001) — это
-встроенный USB-Serial-JTAG, а не CDC-порт (следствие `ARDUINO_USB_MODE=1`).
-Автосброс в режим загрузки через него срабатывает не всегда, и ни
-`--before usb_reset`, ни `--before no_reset` не помогают. Лечится только
-руками: долгое удержание боковой кнопки до мигания зелёного светодиода.
+The board shows up as `USB JTAG_serial debug unit` (VID 0x303A, PID 0x1001):
+the built-in USB-Serial-JTAG rather than a CDC port (a consequence of
+`ARDUINO_USB_MODE=1`). The automatic reset into download mode through it
+doesn't always work, and neither `--before usb_reset` nor `--before
+no_reset` helps. The only fix is manual: hold the side button until the
+green LED blinks. After such a flash the board may stay in the bootloader;
+one short press of the side button starts the firmware.
 
-### Если плата застряла в загрузчике
+### If the board is stuck in the bootloader
 
-Прошивка не запускается, а в порту `boot:0x0 (DOWNLOAD(USB/UART0))` и
-`waiting for download`. Так получалось, когда скрипт на pyserial открывал и
-закрывал порт ради проверки: macOS при этом дёргает DTR/RTS, и USB-Serial-JTAG
-принимает это за команду войти в загрузчик. Выход — одно короткое нажатие
-боковой кнопки. Проверять прошивку, открывая порт скриптом, поэтому не стоит;
-`pio device monitor` на этот эффект не проверялся.
+The firmware doesn't start, and the port shows `boot:0x0
+(DOWNLOAD(USB/UART0))` and `waiting for download`. This happened when a
+pyserial script opened and closed the port as a check: macOS toggles
+DTR/RTS then, and the USB-Serial-JTAG takes that as a command to enter the
+bootloader. The way out is one short press of the side button. So don't
+check the firmware by opening the port from a script; whether
+`pio device monitor` does the same has not been checked.
 
-## Тесты
+## Tests
 
-Юнит-тестами покрывается логика из `lib/`, по одному каталогу
-`test/test_<модуль>/test_main.cpp` на модуль. Отрисовка проверяется глазами на
-плате — писать тесты на `Renderer` не пытаться, это потребует мока всего
-LovyanGFX и ничего полезного не докажет.
+Unit tests cover the logic in `lib/`, one `test/test_<module>/test_main.cpp`
+directory per module. Rendering is checked by eye on the board — don't try
+to write tests for `Renderer`: that would need a mock of all of LovyanGFX
+and would prove nothing useful.
 
-`main` в тестах возвращает число провалов из `UNITY_END()`, а PlatformIO
-показывает ненулевой код выхода как номер сигнала. Строка вроде
-`Program received signal SIGALRM` при падающих тестах — артефакт отчёта, а не
-отдельная проблема; при зелёных тестах она исчезает.
+`main` in the tests returns the failure count from `UNITY_END()`, and
+PlatformIO reports a non-zero exit code as a signal number. A line like
+`Program received signal SIGALRM` with failing tests is an artifact of the
+report, not a separate problem; it disappears once the tests pass.
